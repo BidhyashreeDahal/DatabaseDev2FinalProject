@@ -30,7 +30,7 @@
     "**/*.mts",
     "**/*.ts",
     "**/*.tsx"
-, "components/navBar.jsx"  ],
+, "frontend/components/navBar.jsx"  ],
   "exclude": [
     "node_modules"
   ]
