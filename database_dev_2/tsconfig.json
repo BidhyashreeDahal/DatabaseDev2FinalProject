@@ -30,7 +30,7 @@
     "**/*.mts",
     "**/*.ts",
     "**/*.tsx"
-, "frontend/components/navBar.jsx"  ],
+, "frontend/components/navBar.jsx", "backend/prisma.config.js"  ],
   "exclude": [
     "node_modules"
   ]

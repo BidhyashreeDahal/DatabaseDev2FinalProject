@@ -11,3 +11,214 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model role {
+  role_id     Int     @id @default(autoincrement())
+  role_name   String  @db.VarChar(35)
+  description String? @db.VarChar(200)
+  users       user[]
+}
+
+model user {
+  user_id       Int      @id @default(autoincrement())
+  role_id       Int
+  first_name    String   @db.VarChar(35)
+  last_name     String   @db.VarChar(35)
+  email         String   @db.VarChar(35)
+  password_hash String   @db.VarChar(75)
+  is_active     Boolean
+  created_date  DateTime @db.Date
+  last_login    DateTime?
+  role          role     @relation(fields: [role_id], references: [role_id])
+  sales         sales[]
+}
+
+model address {
+  address_id    Int     @id @default(autoincrement())
+  address_type  String  @db.VarChar(35)
+  address_line1 String  @db.VarChar(50)
+  address_line2 String? @db.VarChar(50)
+  city          String  @db.VarChar(35)
+  province      String  @db.VarChar(35)
+  postal_code   String  @db.VarChar(10)
+  country       String  @db.VarChar(35)
+  customer_address customer_address[]
+}
+
+model customer {
+  customer_id  Int     @id @default(autoincrement())
+  first_name   String  @db.VarChar(35)
+  last_name    String  @db.VarChar(35)
+  email        String? @db.VarChar(35)
+  phone        String? @db.VarChar(15)
+  notes        String? @db.VarChar(300)
+  created_date DateTime @db.Date
+  customer_address customer_address[]
+  sales        sales[]
+}
+
+model customer_address {
+  customer_id Int
+  address_id  Int
+  customer    customer @relation(fields: [customer_id], references: [customer_id])
+  address     address  @relation(fields: [address_id], references: [address_id])
+  @@id([customer_id, address_id])
+}
+
+model payment_method {
+  payment_method_id Int    @id @default(autoincrement())
+  payment_method    String @db.VarChar(35)
+  sales             sales[]
+}
+
+model author {
+  author_id Int    @id @default(autoincrement())
+  name      String @db.VarChar(35)
+  books     book[]
+}
+
+model cartographer {
+  cartographer_id Int    @id @default(autoincrement())
+  name            String @db.VarChar(50)
+  maps            map[]
+}
+
+model publisher {
+  publisher_id Int    @id @default(autoincrement())
+  name         String @db.VarChar(50)
+  books        book[]
+  maps         map[]
+  periodicals  periodical[]
+}
+
+model source {
+  source_id Int    @id @default(autoincrement())
+  name      String @db.VarChar(50)
+  email     String? @db.VarChar(35)
+  phone     String? @db.VarChar(15)
+  acquisitions acquisition[]
+  dealer    dealer?
+  collector collector?
+  estate    estate?
+}
+
+model dealer {
+  source_id          Int    @id
+  specialty          String? @db.VarChar(100)
+  reliability_rating Int?   @db.Integer
+  price_range_notes  String? @db.VarChar(300)
+  negotiation_notes  String? @db.VarChar(300)
+  source             source @relation(fields: [source_id], references: [source_id])
+}
+
+model collector {
+  source_id            Int    @id
+  collecting_interests String? @db.VarChar(300)
+  notes                String? @db.VarChar(300)
+  source               source @relation(fields: [source_id], references: [source_id])
+}
+
+model estate {
+  source_id      Int    @id
+  estate_name    String @db.VarChar(100)
+  contact_person String? @db.VarChar(100)
+  notes          String? @db.VarChar(300)
+  source         source @relation(fields: [source_id], references: [source_id])
+}
+
+model item {
+  item_id          Int     @id @default(autoincrement())
+  title            String  @db.VarChar(35)
+  description      String? @db.VarChar(200)
+  condition        String  @db.VarChar(100)
+  acquisition_date DateTime @db.Date
+  acquisition_cost Decimal @db.Decimal(12,2)
+  selling_price    Decimal @db.Decimal(12,2)
+  image_url        String? @db.VarChar(500)
+  note             String? @db.VarChar(300)
+  acquisition      acquisition[]
+  book             book?
+  map              map?
+  periodical       periodical?
+  price_history    price_history[]
+  provenance       provenance[]
+  sales            sales[]
+}
+
+model acquisition {
+  acquisition_id Int    @id @default(autoincrement())
+  source_id      Int
+  item_id        Int
+  source         source @relation(fields: [source_id], references: [source_id])
+  item           item   @relation(fields: [item_id], references: [item_id])
+}
+
+model book {
+  item_id         Int    @id
+  author_id       Int
+  publisher_id    Int
+  publishing_year DateTime @db.Date
+  edition         String  @db.VarChar(35)
+  isbn            String  @db.VarChar(20)
+  binding_type    String  @db.VarChar(35)
+  genre           String? @db.VarChar(50)
+  item            item    @relation(fields: [item_id], references: [item_id])
+  author          author  @relation(fields: [author_id], references: [author_id])
+  publisher       publisher @relation(fields: [publisher_id], references: [publisher_id])
+}
+
+model map {
+  item_id         Int    @id
+  cartographer_id Int?
+  publisher_id    Int?
+  publishing_year DateTime? @db.Date
+  scale           String? @db.VarChar(35)
+  map_type        String  @db.VarChar(35)
+  item            item    @relation(fields: [item_id], references: [item_id])
+  cartographer    cartographer? @relation(fields: [cartographer_id], references: [cartographer_id])
+  publisher       publisher? @relation(fields: [publisher_id], references: [publisher_id])
+}
+
+model periodical {
+  item_id          Int    @id
+  publisher_id     Int?
+  issue_date       DateTime @db.Date
+  issue_number     String? @db.VarChar(35)
+  subject_coverage String? @db.VarChar(200)
+  item             item    @relation(fields: [item_id], references: [item_id])
+  publisher        publisher? @relation(fields: [publisher_id], references: [publisher_id])
+}
+
+model price_history {
+  price_history_id Int     @id @default(autoincrement())
+  item_id          Int
+  market_value     Decimal @db.Decimal(12,2)
+  recorded_date    DateTime @db.Date
+  source           String  @db.VarChar(50)
+  item             item    @relation(fields: [item_id], references: [item_id])
+}
+
+model provenance {
+  provenance_id   Int     @id @default(autoincrement())
+  item_id         Int
+  previous_owner  String  @db.VarChar(50)
+  start_date      DateTime @db.Date
+  end_date        DateTime? @db.Date
+  verified_status Boolean
+  note            String? @db.VarChar(300)
+  item            item    @relation(fields: [item_id], references: [item_id])
+}
+
+model sales {
+  sales_id          Int     @id @default(autoincrement())
+  item_id           Int
+  customer_id       Int
+  user_id           Int
+  payment_method_id Int
+  sale_price        Decimal @db.Decimal(12,2)
+  sales_date        DateTime
+  item              item    @relation(fields: [item_id], references: [item_id])
+  customer          customer @relation(fields: [customer_id], references: [customer_id])
+  user              user    @relation(fields: [user_id], references: [user_id])
+  payment_method    payment_method @relation(fields: [payment_method_id], references: [payment_method_id])
+}
