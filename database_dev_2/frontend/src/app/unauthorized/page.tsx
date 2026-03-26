@@ -18,8 +18,8 @@ export default function UnauthorizedPage() {
       <p className="mt-3 text-zinc-600">
         You do not have permission to access this page.
       </p>
-      <Link href="/dashboard" className="mt-6 inline-block underline">
-        Back to dashboard
+      <Link href="/items" className="mt-6 inline-block underline">
+        Back to items
       </Link>
     </main>
   );

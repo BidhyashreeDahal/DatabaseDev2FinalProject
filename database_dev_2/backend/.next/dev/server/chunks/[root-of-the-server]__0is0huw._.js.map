@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 76, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/bidhy/DatabaseDev2FinalProject/database_dev_2/backend/src/proxy.js"],"sourcesContent":["import { NextResponse } from \"next/server\";\r\n\r\nexport function proxy() {\r\n  return NextResponse.next();\r\n}\r\n"],"names":["proxy","next"],"mappings":";;;;AAAA;;AAEO,SAASA;IACd,OAAO,8IAAY,CAACC,IAAI;AAC1B"}}]
+}
