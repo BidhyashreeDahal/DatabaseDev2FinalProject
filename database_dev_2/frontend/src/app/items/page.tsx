@@ -5,6 +5,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
 
@@ -18,6 +19,7 @@ type ItemRow = {
 };
 
 export default function ItemsPage() {
+  const router = useRouter();
   const [rows, setRows] = useState<ItemRow[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -72,7 +74,11 @@ export default function ItemsPage() {
             <option>Fair</option>
           </select>
           <input type="number" placeholder="Min price" className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
-          <button className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">
+          <button
+            type="button"
+            onClick={() => router.push("/items/create")}
+            className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          >
             + Add Item
           </button>
         </div>
