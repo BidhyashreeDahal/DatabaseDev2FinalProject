@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma/client';
 import bcrypt from "bcryptjs";
 
 // 2. Grab the URL and force it to be a clean string
