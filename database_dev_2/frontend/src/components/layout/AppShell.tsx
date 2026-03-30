@@ -27,6 +27,7 @@ export function AppShell({
     { href: "/sources", label: "Sources" },
     { href: "/acquisitions", label: "Acquisitions" },
     { href: "/sales", label: "Sales" },
+    { href: "/price-history", label: "Price History" },
   ];
 
   const roleLinks = [
