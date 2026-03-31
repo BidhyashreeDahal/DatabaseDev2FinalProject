@@ -1,2 +1,41 @@
-{"timestamp":"00:00:01.945","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:32.161","source":"Server","level":"ERROR","message":"(node:34564) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.\nIn the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.\n\nTo prepare for this change:\n- If you want the current behavior, explicitly use 'sslmode=verify-full'\n- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'\n\nSee https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.\n(Use `node --trace-warnings ...` to show where the warning was created)"}
+{"timestamp":"00:00:01.504","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:05.936","source":"Server","level":"ERROR","message":"[Server HMR] Subscription error: TurbopackInternalError: failed to create directory \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\" for write to \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\\\\node_modules_next_dist_0k8zr~w._.js\"\n\nCaused by:\n- Access is denied. (os error 5)"}
+{"timestamp":"00:00:06.041","source":"Server","level":"ERROR","message":"[Server HMR] Subscription error: TurbopackInternalError: failed to create directory \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\" for write to \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\\\\node_modules_next_dist_0k8zr~w._.js\"\n\nCaused by:\n- Access is denied. (os error 5)"}
+{"timestamp":"00:00:07.424","source":"Server","level":"ERROR","message":"(node:3888) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.\nIn the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.\n\nTo prepare for this change:\n- If you want the current behavior, explicitly use 'sslmode=verify-full'\n- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'\n\nSee https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.\n(Use `node --trace-warnings ...` to show where the warning was created)"}
+{"timestamp":"00:00:29.067","source":"Server","level":"ERROR","message":"[Server HMR] Subscription error: TurbopackInternalError: failed to create directory \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\" for write to \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\\\\[project]_pages__error_0-mliof._.js.map\"\n\nCaused by:\n- Access is denied. (os error 5)"}
+{"timestamp":"00:00:29.095","source":"Server","level":"ERROR","message":"[Server HMR] Subscription error: TurbopackInternalError: failed to create directory \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\" for write to \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\\\\[project]_pages__error_0-mliof._.js.map\"\n\nCaused by:\n- Access is denied. (os error 5)"}
+{"timestamp":"00:00:29.117","source":"Server","level":"ERROR","message":"[Server HMR] Subscription error: TurbopackInternalError: failed to create directory \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\" for write to \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\\\\[project]_pages__error_0-mliof._.js.map\"\n\nCaused by:\n- Access is denied. (os error 5)"}
+{"timestamp":"00:00:29.141","source":"Server","level":"ERROR","message":"[Server HMR] Subscription error: TurbopackInternalError: failed to create directory \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\" for write to \"C:\\\\Users\\\\sreer\\\\OneDrive\\\\Desktop\\\\DatabaseDev2FinalProject\\\\database_dev_2\\\\backend\\\\.next\\\\dev\\\\static\\\\chunks\\\\[project]_pages__error_0-mliof._.js.map\"\n\nCaused by:\n- Access is denied. (os error 5)"}
+{"timestamp":"00:12:27.858","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:12:27.989","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:14:43.246","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:15:56.391","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:15:59.208","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:00.101","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:00.808","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:01.257","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:02.634","source":"Server","level":"LOG","message":"Fetched price history data: []"}
+{"timestamp":"00:16:03.711","source":"Server","level":"LOG","message":"Fetched price history data: []"}
+{"timestamp":"00:16:05.749","source":"Server","level":"LOG","message":"Fetched price history data: []"}
+{"timestamp":"00:16:05.799","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:06.767","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:07.016","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:07.403","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:07.568","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:08.035","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:08.528","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:08.588","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:16:09.652","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:17:17.654","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...}]"}
+{"timestamp":"00:17:23.594","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:17:25.020","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:17:25.935","source":"Server","level":"LOG","message":"Fetched price history data: [{...}]"}
+{"timestamp":"00:17:25.991","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...}]"}
+{"timestamp":"00:17:26.749","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...}]"}
+{"timestamp":"00:17:26.839","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...}]"}
+{"timestamp":"00:17:27.825","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...}]"}
+{"timestamp":"00:17:28.230","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...}]"}
+{"timestamp":"00:17:30.412","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...}]"}
+{"timestamp":"00:17:31.166","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...}]"}
+{"timestamp":"00:17:31.375","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...}]"}
+{"timestamp":"00:17:31.379","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...}]"}
