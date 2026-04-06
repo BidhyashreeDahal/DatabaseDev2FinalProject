@@ -23,9 +23,31 @@ export async function GET(request, { params }) {
     const item = await prisma.item.findUnique({
       where: { item_id: id },
       include: {
-        book: true,
-        map: true,
-        periodical: true,
+        book: {
+          include: {
+            author: { select: { name: true } },
+            publisher: { select: { name: true } },
+          },
+        },
+        map: {
+          include: {
+            cartographer: { select: { name: true } },
+            publisher: { select: { name: true } },
+          },
+        },
+        periodical: {
+          include: {
+            publisher: { select: { name: true } },
+          },
+        },
+        provenance: {
+          orderBy: { start_date: "desc" },
+          take: 5,
+        },
+        price_history: {
+          orderBy: { recorded_date: "desc" },
+          take: 10,
+        },
         sales: {
           select: { sales_id: true },
           take: 1,

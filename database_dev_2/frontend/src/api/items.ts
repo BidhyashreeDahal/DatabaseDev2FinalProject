@@ -30,3 +30,37 @@ export async function createItem(payload: CreateItemPayload) {
     body: JSON.stringify(payload),
   });
 }
+
+export type UpdateItemPayload = {
+  title: string;
+  description?: string | null;
+  condition: string;
+  acquisition_date: string;
+  acquisition_cost: number;
+  selling_price: number;
+  image_url?: string | null;
+  note?: string | null;
+};
+
+type UpdateItemResponse = {
+  success: boolean;
+  item?: {
+    item_id: number;
+    title: string;
+    description?: string | null;
+    condition: string;
+    acquisition_date: string;
+    acquisition_cost: number;
+    selling_price: number;
+    image_url?: string | null;
+    note?: string | null;
+  };
+  error?: string;
+};
+
+export async function updateItem(itemId: number, payload: UpdateItemPayload) {
+  return apiFetch<UpdateItemResponse>(`/api/items/${itemId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}

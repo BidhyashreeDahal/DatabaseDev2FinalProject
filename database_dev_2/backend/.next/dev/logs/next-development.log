@@ -1,27 +1,18 @@
-{"timestamp":"00:00:00.824","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:10.410","source":"Server","level":"ERROR","message":"(node:56416) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.\nIn the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.\n\nTo prepare for this change:\n- If you want the current behavior, explicitly use 'sslmode=verify-full'\n- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'\n\nSee https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.\n(Use `node --trace-warnings ...` to show where the warning was created)"}
-{"timestamp":"00:00:24.437","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:00:24.517","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:00:32.639","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:00:32.721","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:00:46.990","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:00:47.108","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:01:06.231","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:01:06.306","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:01:27.133","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:03:15.431","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:03:15.531","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:03:41.243","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:03:41.324","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:04:18.109","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:04:18.210","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:04:34.015","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:04:34.097","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:05:36.769","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:05:37.269","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:05:55.336","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:05:55.412","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:09:24.872","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:09:24.941","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:10:27.384","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...}]"}
-{"timestamp":"00:10:27.593","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:00:01.639","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:24.917","source":"Server","level":"ERROR","message":"(node:3460) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.\nIn the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.\n\nTo prepare for this change:\n- If you want the current behavior, explicitly use 'sslmode=verify-full'\n- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'\n\nSee https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.\n(Use `node --trace-warnings ...` to show where the warning was created)"}
+{"timestamp":"00:15:17.396","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:15:18.424","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:27:15.046","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:27:16.649","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:48:47.957","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:48:48.376","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:49:07.213","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"00:49:08.128","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"01:56:38.825","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"01:56:39.209","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:44:05.873","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:44:05.957","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"03:00:33.620","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"03:00:33.688","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"04:51:45.111","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"04:51:46.369","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
