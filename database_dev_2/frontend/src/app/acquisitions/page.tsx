@@ -1,18 +1,110 @@
-/**
- * Page Purpose:
- * List acquisition records (items purchased from sources).
- *
- * What goes here:
- * - Acquisition table
- * - Date/source filters
- * - Link to create acquisition record
- */
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { API_BASE_URL } from "@/api/api";
+
+type AcquisitionRow = {
+  acquisitionId: number;
+  itemId: number;
+  itemTitle: string;
+  sourceId: number;
+  sourceName: string;
+  sourceType: string;
+  acquisitionCost: number;
+  acquisitionDate?: string | null;
+};
 
 export default function AcquisitionsPage() {
+  const [rows, setRows] = useState<AcquisitionRow[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        setLoading(true);
+        setError("");
+        const query = search ? `?search=${encodeURIComponent(search)}` : "";
+        const res = await fetch(`${API_BASE_URL}/api/acquisitions${query}`, { credentials: "include" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to load acquisitions");
+        if (active) setRows(data.acquisitions ?? []);
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : "Failed to load acquisitions");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, [search]);
+
+  const visibleRows = useMemo(() => rows.slice(0, 50), [rows]);
+
   return (
     <AppShell pageTitle="Acquisitions" pageDescription="Track inventory purchases and source records.">
-      <p className="text-sm text-zinc-600">Acquisitions table goes here.</p>
+      <section className="space-y-4">
+        <input
+          placeholder="Search source or item"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm md:w-80"
+        />
+        <div className="overflow-x-auto rounded-lg border border-slate-200">
+          <table className="min-w-full text-sm">
+            <thead className="bg-slate-50 text-left text-slate-600">
+              <tr>
+                <th className="px-3 py-2 font-medium">Acquisition ID</th>
+                <th className="px-3 py-2 font-medium">Item</th>
+                <th className="px-3 py-2 font-medium">Source</th>
+                <th className="px-3 py-2 font-medium">Type</th>
+                <th className="px-3 py-2 font-medium">Cost</th>
+                <th className="px-3 py-2 font-medium">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                    Loading acquisitions...
+                  </td>
+                </tr>
+              )}
+              {!loading && error && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-8 text-center text-red-600">
+                    {error}
+                  </td>
+                </tr>
+              )}
+              {!loading && !error && visibleRows.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                    No acquisitions found.
+                  </td>
+                </tr>
+              )}
+              {!loading &&
+                !error &&
+                visibleRows.map((row) => (
+                  <tr key={row.acquisitionId} className="border-t border-slate-100">
+                    <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.acquisitionId}</td>
+                    <td className="px-3 py-2">{row.itemTitle}</td>
+                    <td className="px-3 py-2">{row.sourceName}</td>
+                    <td className="px-3 py-2">{row.sourceType}</td>
+                    <td className="px-3 py-2">${Number(row.acquisitionCost).toFixed(2)}</td>
+                    <td className="px-3 py-2">{row.acquisitionDate ? new Date(row.acquisitionDate).toLocaleDateString() : "-"}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </AppShell>
   );
 }

@@ -174,6 +174,188 @@ async function main() {
     note: 'Contains original Punch cartoon plates.'
   }})
 
+// 7. SOURCES
+const dealerSource = await prisma.source.create({
+  data: {
+    name: "Rare Books Dealer Ltd",
+    email: "dealer@example.com",
+    phone: "1234567890",
+  },
+});
+const collectorSource = await prisma.source.create({
+  data: {
+    name: "Montreal Private Collector",
+    email: "collector@example.com",
+    phone: "5142221199",
+  },
+});
+const estateSource = await prisma.source.create({
+  data: {
+    name: "Hastings Estate Holdings",
+    email: "estate@example.com",
+    phone: "4167654321",
+  },
+});
+
+await prisma.dealer.create({
+  data: {
+    source_id: dealerSource.source_id,
+    specialty: "Rare first editions",
+    reliability_rating: 5,
+    price_range_notes: "Mid to high value inventory",
+    negotiation_notes: "Bulk discounts available",
+  },
+});
+await prisma.collector.create({
+  data: {
+    source_id: collectorSource.source_id,
+    collecting_interests: "Victorian maps and periodicals",
+    notes: "Open to yearly consignments",
+  },
+});
+await prisma.estate.create({
+  data: {
+    source_id: estateSource.source_id,
+    estate_name: "Hastings Family Estate",
+    contact_person: "Margaret Hastings",
+    notes: "Prefers complete lot appraisals",
+  },
+});
+
+// 8. CUSTOMERS
+const customer1 = await prisma.customer.create({
+  data: {
+    first_name: "Alice",
+    last_name: "Johnson",
+    email: "alice@example.com",
+    phone: "6471234567",
+    created_date: new Date()
+  }
+});
+const customer2 = await prisma.customer.create({
+  data: {
+    first_name: "Bob",
+    last_name: "Smith",
+    email: "bob@example.com",
+    phone: "4169876543",
+    created_date: new Date()
+  }
+});
+const customer3 = await prisma.customer.create({
+  data: {
+    first_name: "Charlie",
+    last_name: "Brown",
+    email: "charlie@example.com",
+    phone: "4161234567",
+    created_date: new Date()
+  }
+});
+const customer4 = await prisma.customer.create({
+  data: {
+    first_name: "David",
+    last_name: "Wilson",
+    email: "david@example.com",
+    phone: "4165551234",
+    created_date: new Date()
+  }
+});
+
+// 9. PAYMENT METHODS
+const cash = await prisma.payment_method.create({
+  data: { payment_method: "Cash" }
+});
+const creditCard = await prisma.payment_method.create({
+  data: { payment_method: "Credit Card" }
+});
+const bankTransfer = await prisma.payment_method.create({
+  data: { payment_method: "Bank Transfer" }
+});
+
+// 10. ACQUISITIONS (link source → item)
+await prisma.acquisition.createMany({
+  data: [
+    { item_id: hobbit.item_id, source_id: dealerSource.source_id },
+    { item_id: taleOfTwoCities.item_id, source_id: estateSource.source_id },
+    { item_id: frankenstein.item_id, source_id: dealerSource.source_id },
+    { item_id: prideAndPrejudice.item_id, source_id: collectorSource.source_id },
+    { item_id: britishMap.item_id, source_id: collectorSource.source_id },
+    { item_id: worldMap.item_id, source_id: estateSource.source_id },
+    { item_id: illustratedLondon.item_id, source_id: dealerSource.source_id },
+    { item_id: punchMag.item_id, source_id: collectorSource.source_id },
+  ],
+});
+
+// 11. SALES (core business logic)
+await prisma.sales.createMany({
+  data: [
+    {
+      item_id: hobbit.item_id,
+      customer_id: customer1.customer_id,
+      user_id: 1,
+      payment_method_id: cash.payment_method_id,
+      sale_price: 5000,
+      sales_date: new Date("2025-10-05"),
+    },
+    {
+      item_id: britishMap.item_id,
+      customer_id: customer2.customer_id,
+      user_id: 2,
+      payment_method_id: creditCard.payment_method_id,
+      sale_price: 1299,
+      sales_date: new Date("2026-01-14"),
+    },
+    {
+      item_id: illustratedLondon.item_id,
+      customer_id: customer3.customer_id,
+      user_id: 2,
+      payment_method_id: bankTransfer.payment_method_id,
+      sale_price: 700,
+      sales_date: new Date("2026-02-22"),
+    },
+  ],
+});
+
+// 12. PRICE HISTORY
+await prisma.price_history.createMany({
+  data: [
+    { item_id: hobbit.item_id, market_value: 5200, recorded_date: new Date("2025-06-01"), source: "Sotheby's index" },
+    { item_id: hobbit.item_id, market_value: 5500, recorded_date: new Date("2025-11-01"), source: "In-house appraisal" },
+    { item_id: frankenstein.item_id, market_value: 7600, recorded_date: new Date("2025-09-18"), source: "Dealer comp set" },
+    { item_id: worldMap.item_id, market_value: 2100, recorded_date: new Date("2026-01-03"), source: "Map fair comps" },
+    { item_id: punchMag.item_id, market_value: 590, recorded_date: new Date("2026-02-01"), source: "Auction notes" },
+  ],
+});
+
+// 13. PROVENANCE
+await prisma.provenance.createMany({
+  data: [
+    {
+      item_id: hobbit.item_id,
+      previous_owner: "Windsor Reading Club",
+      start_date: new Date("1950-01-01"),
+      end_date: new Date("1988-12-31"),
+      verified_status: true,
+      note: "Stamped ex-libris on front pastedown",
+    },
+    {
+      item_id: frankenstein.item_id,
+      previous_owner: "Dr. E. Lang Collection",
+      start_date: new Date("1928-01-01"),
+      end_date: new Date("1974-12-31"),
+      verified_status: true,
+      note: "Documented in estate inventory",
+    },
+    {
+      item_id: worldMap.item_id,
+      previous_owner: "Bristol Nautical Archives",
+      start_date: new Date("1895-01-01"),
+      end_date: null,
+      verified_status: false,
+      note: "Attributed by marginal annotation only",
+    },
+  ],
+});
+
   // BOOKS
   await prisma.book.createMany({ data: [
     { item_id: hobbit.item_id,            author_id: tolkien.author_id,  publisher_id: allenUnwin.publisher_id,  publishing_year: new Date('1937-09-21'), edition: '1st Edition', isbn: '978-0-04-823046-8', binding_type: 'Hardcover', genre: 'Fantasy' },
@@ -196,6 +378,7 @@ async function main() {
 
   console.log('✅ Items, books, maps and periodicals inserted successfully!')
 }
+
 
 main()
   .catch((e) => {
