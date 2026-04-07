@@ -1,59 +1,36 @@
-import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
+import { getSessionUser } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
+import { customerService } from "@/services/customerService";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
 }
 
 export async function GET(request) {
-  const prisma = createPrismaClient();
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "READ_CUSTOMER")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim();
-
-    const customers = await prisma.customer.findMany({
-      where: search
-        ? {
-            OR: [
-              { first_name: { contains: search, mode: "insensitive" } },
-              { last_name: { contains: search, mode: "insensitive" } },
-              { email: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : undefined,
-      include: {
-        sales: {
-          select: { sales_date: true },
-        },
-      },
-      orderBy: { customer_id: "desc" },
-      take: 50,
-    });
-
-    const formatted = customers.map((customer) => {
-      const lastSale = customer.sales
-        .map((s) => s.sales_date)
-        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
-
-      return {
-        customerId: customer.customer_id,
-        name: `${customer.first_name} ${customer.last_name}`,
-        email: customer.email,
-        phone: customer.phone,
-        purchases: customer.sales.length,
-        lastPurchase: lastSale ? new Date(lastSale).toISOString() : null,
-      };
-    });
+    const customers = await customerService.listCustomers({ search });
 
     return withCors(
       request,
-      Response.json({ success: true, customers: formatted }, { status: 200 }),
+      Response.json({ success: true, customers }, { status: 200 }),
       ["GET", "POST", "OPTIONS"]
     );
   } catch (error) {
+    const status = error.statusCode || error.status || 500;
     return withCors(
       request,
-      Response.json({ success: false, error: error.message || "Failed to load customers" }, { status: 500 }),
+      Response.json({ success: false, error: error.message || "Failed to load customers" }, { status }),
       ["GET", "POST", "OPTIONS"]
     );
   }
@@ -61,12 +38,28 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    // TODO: Extract body, validate using validateCustomerPayload
-    // Check permissions (MANAGER/ADMIN), call customerService.createCustomer
-    // Log audit event: {action: 'CREATE_CUSTOMER', resourceId, userId}
-    // Return created customer with 201 status
-    return Response.json({ success: false, error: "Not implemented" }, { status: 501 });
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "CREATE_CUSTOMER")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
+    const payload = await request.json();
+    const customer = await customerService.createCustomer(payload);
+
+    return withCors(
+      request,
+      Response.json({ success: true, customer }, { status: 201 }),
+      ["GET", "POST", "OPTIONS"]
+    );
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    const status = error.statusCode || error.status || 500;
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to create customer" }, { status }),
+      ["GET", "POST", "OPTIONS"]
+    );
   }
 }

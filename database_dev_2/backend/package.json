@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start -p 4000",
     "lint": "eslint . --config ../eslint.config.mjs",
+    "verify:api-guards": "node scripts/verify-api-guards.mjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed"

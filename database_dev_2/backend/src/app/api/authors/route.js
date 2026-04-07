@@ -3,6 +3,8 @@
 import { NextResponse } from "next/server";
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
+import { getSessionUser } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
 
 const prisma = createPrismaClient();
 
@@ -12,6 +14,14 @@ export async function OPTIONS(req) {
 
 export async function GET(req) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(req, NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "READ_ITEM")) {
+      return withCors(req, NextResponse.json({ error: "Forbidden" }, { status: 403 }));
+    }
+
     const rows = await prisma.author.findMany({
       orderBy: { name: "asc" },
     });
@@ -30,6 +40,14 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(req, NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "CREATE_ITEM")) {
+      return withCors(req, NextResponse.json({ error: "Forbidden" }, { status: 403 }));
+    }
+
     const { name } = await req.json();
 
     if (!name?.trim()) {

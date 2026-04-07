@@ -14,6 +14,8 @@
  */
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
+import { getSessionUser } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "OPTIONS"]);
@@ -22,6 +24,20 @@ export async function OPTIONS(req) {
 export async function GET(request) {
   const prisma = createPrismaClient();
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }), [
+        "GET",
+        "OPTIONS",
+      ]);
+    }
+    if (!hasPermission(sessionUser.role, "READ_AUDIT_LOGS")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }), [
+        "GET",
+        "OPTIONS",
+      ]);
+    }
+
     const [sales, acquisitions] = await Promise.all([
       prisma.sales.findMany({
         include: {

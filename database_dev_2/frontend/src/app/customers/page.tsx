@@ -1,17 +1,10 @@
-/**
- * Page Purpose:
- * List all customers and support searching/filtering.
- *
- * What goes here:
- * - Customer list/table
- * - Search and type filters
- * - Navigation to customer details/create
- */
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
-import { API_BASE_URL } from "@/api/api";
+import { apiFetch } from "@/api/api";
+import { useAuth } from "@/context/AuthContext";
 
 type CustomerRow = {
   customerId: number;
@@ -23,20 +16,29 @@ type CustomerRow = {
 };
 
 export default function CustomersPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const role = String(user?.role || "").toLowerCase();
+  const canCreate = role === "admin" || role === "manager";
+  const canUpdate = role === "admin" || role === "manager";
+  const canDelete = role === "admin";
+
   const [rows, setRows] = useState<CustomerRow[]>([]);
   const [search, setSearch] = useState("");
+  const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
     async function load() {
       try {
         setLoading(true);
-        const query = search ? `?search=${encodeURIComponent(search)}` : "";
-        const res = await fetch(`${API_BASE_URL}/api/customers${query}`, { credentials: "include" });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to load customers");
+        setError("");
+        const rawQuery = [search, contact].filter(Boolean).join(" ").trim();
+        const query = rawQuery ? `?search=${encodeURIComponent(rawQuery)}` : "";
+        const data = await apiFetch<{ success: boolean; customers: CustomerRow[] }>(`/api/customers${query}`);
         if (active) setRows(data.customers ?? []);
       } catch (err) {
         if (active) setError(err instanceof Error ? err.message : "Failed to load customers");
@@ -44,36 +46,61 @@ export default function CustomersPage() {
         if (active) setLoading(false);
       }
     }
+
     load();
     return () => {
       active = false;
     };
-  }, [search]);
+  }, [search, contact]);
+
+  async function handleDelete(customerId: number) {
+    const confirmed = window.confirm("Delete this customer?");
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(customerId);
+      await apiFetch<{ success: boolean; message?: string }>(`/api/customers/${customerId}`, {
+        method: "DELETE",
+      });
+      setRows((prev) => prev.filter((row) => row.customerId !== customerId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete customer");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <AppShell pageTitle="Customers" pageDescription="Track customers and their activity.">
       <section className="space-y-4">
         <div className="grid gap-3 md:grid-cols-4">
           <input
-            placeholder="Search customer"
+            placeholder="Search customer by name"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm"
           />
-          <select className="rounded-md border border-slate-300 px-3 py-2 text-sm">
-            <option>All Types</option>
-            <option>Casual Buyer</option>
-            <option>Collector</option>
-            <option>Dealer</option>
-          </select>
           <input
             placeholder="Email or phone"
+            value={contact}
+            onChange={(e) => setContact(e.target.value)}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm"
           />
-          <button className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">
+          <div className="rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+            All customer types
+          </div>
+          <button
+            disabled={!canCreate}
+            onClick={() => router.push("/customers/create")}
+            className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
             + New Customer
           </button>
         </div>
+
+        <p className="text-xs text-slate-500">
+          Signed in as <span className="font-semibold">{role || "unknown"}</span>. {canDelete ? "You can view, edit, and delete customers." : canUpdate ? "You can view and edit customers." : "You can only view customers."}
+        </p>
 
         <div className="overflow-x-auto rounded-lg border border-slate-200">
           <table className="min-w-full text-sm">
@@ -86,26 +113,27 @@ export default function CustomersPage() {
                 <th className="px-3 py-2 font-medium">Phone</th>
                 <th className="px-3 py-2 font-medium">Purchases</th>
                 <th className="px-3 py-2 font-medium">Last Purchase</th>
+                <th className="px-3 py-2 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-slate-500">
+                  <td colSpan={8} className="px-3 py-10 text-center text-slate-500">
                     Loading customers...
                   </td>
                 </tr>
               )}
               {!loading && error && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-red-600">
+                  <td colSpan={8} className="px-3 py-10 text-center text-red-600">
                     {error}
                   </td>
                 </tr>
               )}
               {!loading && !error && rows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-slate-500">
+                  <td colSpan={8} className="px-3 py-10 text-center text-slate-500">
                     No customers found.
                   </td>
                 </tr>
@@ -120,8 +148,33 @@ export default function CustomersPage() {
                     <td className="px-3 py-2">{row.email || "-"}</td>
                     <td className="px-3 py-2">{row.phone || "-"}</td>
                     <td className="px-3 py-2">{row.purchases}</td>
-                    <td className="px-3 py-2">
-                      {row.lastPurchase ? new Date(row.lastPurchase).toLocaleDateString("en-CA") : "-"}
+                    <td className="px-3 py-2">{row.lastPurchase ? new Date(row.lastPurchase).toLocaleDateString("en-CA") : "-"}</td>
+                    <td className="px-3 py-2 text-slate-500">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => router.push(`/customers/${row.customerId}`)}
+                          className="text-blue-700 hover:underline"
+                        >
+                          View
+                        </button>
+                        {canUpdate && (
+                          <button
+                            onClick={() => router.push(`/customers/${row.customerId}/edit`)}
+                            className="text-slate-700 hover:underline"
+                          >
+                            Edit
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(row.customerId)}
+                            disabled={deletingId === row.customerId}
+                            className="text-red-600 hover:underline disabled:opacity-50"
+                          >
+                            {deletingId === row.customerId ? "Deleting..." : "Delete"}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

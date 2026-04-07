@@ -1,37 +1,107 @@
-/**
- * GET /api/customers/[id] - Get specific customer details
- * PATCH /api/customers/[id] - Update customer
- * DELETE /api/customers/[id] - Delete customer
- */
-export async function GET({ params }) {
+import { preflight, withCors } from "@/lib/cors";
+import { getSessionUser } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
+import { customerService } from "@/services/customerService";
+
+function parseId(params) {
+  const id = Number(params?.id);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+export async function OPTIONS(req) {
+  return preflight(req, ["GET", "PATCH", "DELETE", "OPTIONS"]);
+}
+
+export async function GET(request, { params }) {
+  const id = parseId(await params);
+  if (!id) {
+    return withCors(request, Response.json({ success: false, error: "Invalid customer id" }, { status: 400 }));
+  }
+
   try {
-    // TODO: Extract id from params, call customerRepository.findById(id)
-    // Validate permissions, return customer details
-    return Response.json({ success: false, error: "Not implemented" }, { status: 501 });
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "READ_CUSTOMER")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
+    const customer = await customerService.getCustomer(id);
+    return withCors(
+      request,
+      Response.json({ success: true, customer }, { status: 200 }),
+      ["GET", "PATCH", "DELETE", "OPTIONS"]
+    );
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    const status = error.statusCode || error.status || 500;
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to load customer" }, { status }),
+      ["GET", "PATCH", "DELETE", "OPTIONS"]
+    );
   }
 }
 
-export async function PATCH({ params }, request) {
+export async function PATCH(request, { params }) {
+  const id = parseId(await params);
+  if (!id) {
+    return withCors(request, Response.json({ success: false, error: "Invalid customer id" }, { status: 400 }));
+  }
+
   try {
-    // TODO: Extract id, validate updated data using validateCustomerPayload
-    // Check permissions (MANAGER/ADMIN), update via customerService
-    // Log audit event: {action: 'UPDATE_CUSTOMER', resourceId: id, userId}
-    // Return updated customer
-    return Response.json({ success: false, error: "Not implemented" }, { status: 501 });
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "UPDATE_CUSTOMER")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
+    const payload = await request.json();
+    const customer = await customerService.updateCustomer(id, payload);
+    return withCors(
+      request,
+      Response.json({ success: true, customer }, { status: 200 }),
+      ["GET", "PATCH", "DELETE", "OPTIONS"]
+    );
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    const status = error.statusCode || error.status || 500;
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to update customer" }, { status }),
+      ["GET", "PATCH", "DELETE", "OPTIONS"]
+    );
   }
 }
 
-export async function DELETE({ params }) {
+export async function DELETE(request, { params }) {
+  const id = parseId(await params);
+  if (!id) {
+    return withCors(request, Response.json({ success: false, error: "Invalid customer id" }, { status: 400 }));
+  }
+
   try {
-    // TODO: Extract id, check permissions (ADMIN), delete via customerService
-    // Log audit event: {action: 'DELETE_CUSTOMER', resourceId: id, userId}
-    // Return success response
-    return Response.json({ success: false, error: "Not implemented" }, { status: 501 });
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "DELETE_CUSTOMER")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
+    await customerService.deleteCustomer(id);
+    return withCors(
+      request,
+      Response.json({ success: true, message: "Customer deleted successfully" }, { status: 200 }),
+      ["GET", "PATCH", "DELETE", "OPTIONS"]
+    );
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    const status = error.statusCode || error.status || 500;
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to delete customer" }, { status }),
+      ["GET", "PATCH", "DELETE", "OPTIONS"]
+    );
   }
 }

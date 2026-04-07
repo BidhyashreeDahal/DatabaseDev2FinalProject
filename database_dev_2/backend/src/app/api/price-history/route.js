@@ -10,6 +10,22 @@ export async function OPTIONS(req) {
 export async function GET(request) {
   const prisma = createPrismaClient();
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }), [
+        "GET",
+        "POST",
+        "OPTIONS",
+      ]);
+    }
+    if (!hasPermission(sessionUser.role, "READ_ITEM")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }), [
+        "GET",
+        "POST",
+        "OPTIONS",
+      ]);
+    }
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim();
 

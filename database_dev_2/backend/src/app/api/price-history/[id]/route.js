@@ -1,5 +1,7 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
+import { getSessionUser } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
 
 function parseId(params) {
   const id = Number(params?.id);
@@ -14,19 +16,51 @@ export async function GET(request, { params }) {
   const prisma = createPrismaClient();
   const id = parseId(await params);
   if (!id) {
-    return withCors(request, Response.json({ success: false, error: "Invalid item id" }, { status: 400 }));
+    return withCors(request, Response.json({ success: false, error: "Invalid price history id" }, { status: 400 }));
   }
 
   try {
-    const item = await prisma.item.findUnique({ where: { item_id: id } });
-    if (!item) {
-      return withCors(request, Response.json({ success: false, error: "Item not found" }, { status: 404 }));
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
     }
-    return withCors(request, Response.json({ success: true, item }, { status: 200 }));
+    if (!hasPermission(sessionUser.role, "READ_ITEM")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
+    const priceHistory = await prisma.price_history.findUnique({
+      where: { price_history_id: id },
+      include: {
+        item: {
+          select: { title: true },
+        },
+      },
+    });
+    if (!priceHistory) {
+      return withCors(request, Response.json({ success: false, error: "Price history not found" }, { status: 404 }));
+    }
+
+    return withCors(
+      request,
+      Response.json(
+        {
+          success: true,
+          priceHistory: {
+            priceHistoryId: priceHistory.price_history_id,
+            itemId: priceHistory.item_id,
+            title: priceHistory.item?.title || "Unknown Item",
+            marketValue: Number(priceHistory.market_value),
+            recordedDate: priceHistory.recorded_date,
+            source: priceHistory.source,
+          },
+        },
+        { status: 200 }
+      )
+    );
   } catch (error) {
     return withCors(
       request,
-      Response.json({ success: false, error: error.message || "Failed to load item" }, { status: 500 })
+      Response.json({ success: false, error: error.message || "Failed to load price history" }, { status: 500 })
     );
   }
 }
@@ -35,20 +69,77 @@ export async function PUT(request, { params }) {
   const prisma = createPrismaClient();
   const id = parseId(await params);
   if (!id) {
-    return withCors(request, Response.json({ success: false, error: "Invalid item id" }, { status: 400 }));
+    return withCors(request, Response.json({ success: false, error: "Invalid price history id" }, { status: 400 }));
   }
 
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "UPDATE_ITEM")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
     const payload = await request.json();
-    const updated = await prisma.item.update({
-      where: { item_id: id },
-      data: payload,
+    const marketValue = payload?.marketValue !== undefined ? Number(payload.marketValue) : undefined;
+    const source = payload?.source !== undefined ? String(payload.source || "").trim() : undefined;
+    const recordedDate = payload?.recordedDate !== undefined ? new Date(payload.recordedDate) : undefined;
+
+    if (marketValue !== undefined && (!Number.isFinite(marketValue) || marketValue <= 0)) {
+      return withCors(request, Response.json({ success: false, error: "marketValue must be a positive number" }, { status: 400 }));
+    }
+    if (source !== undefined && !source) {
+      return withCors(request, Response.json({ success: false, error: "source is required" }, { status: 400 }));
+    }
+    if (recordedDate !== undefined && Number.isNaN(recordedDate.getTime())) {
+      return withCors(request, Response.json({ success: false, error: "recordedDate is invalid" }, { status: 400 }));
+    }
+
+    const updateData = {};
+    if (marketValue !== undefined) updateData.market_value = marketValue;
+    if (source !== undefined) updateData.source = source;
+    if (recordedDate !== undefined) updateData.recorded_date = recordedDate;
+
+    if (Object.keys(updateData).length === 0) {
+      return withCors(request, Response.json({ success: false, error: "No valid fields to update" }, { status: 400 }));
+    }
+
+    const updated = await prisma.price_history.update({
+      where: { price_history_id: id },
+      data: updateData,
+      include: {
+        item: {
+          select: { title: true },
+        },
+      },
     });
-    return withCors(request, Response.json({ success: true, item: updated }, { status: 200 }));
-  } catch (error) {
+
     return withCors(
       request,
-      Response.json({ success: false, error: error.message || "Failed to update item" }, { status: 500 })
+      Response.json(
+        {
+          success: true,
+          priceHistory: {
+            priceHistoryId: updated.price_history_id,
+            itemId: updated.item_id,
+            title: updated.item?.title || "Unknown Item",
+            marketValue: Number(updated.market_value),
+            recordedDate: updated.recorded_date,
+            source: updated.source,
+          },
+        },
+        { status: 200 }
+      )
+    );
+  } catch (error) {
+    if (error?.code === "P2025") {
+      return withCors(request, Response.json({ success: false, error: "Price history not found" }, { status: 404 }));
+    }
+
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to update price history" }, { status: 500 })
     );
   }
 }
@@ -57,16 +148,28 @@ export async function DELETE(request, { params }) {
   const prisma = createPrismaClient();
   const id = parseId(await params);
   if (!id) {
-    return withCors(request, Response.json({ success: false, error: "Invalid item id" }, { status: 400 }));
+    return withCors(request, Response.json({ success: false, error: "Invalid price history id" }, { status: 400 }));
   }
 
   try {
-    await prisma.item.delete({ where: { item_id: id } });
-    return withCors(request, Response.json({ success: true, message: "Item deleted successfully" }, { status: 200 }));
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "UPDATE_ITEM")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
+    await prisma.price_history.delete({ where: { price_history_id: id } });
+    return withCors(request, Response.json({ success: true, message: "Price history deleted successfully" }, { status: 200 }));
   } catch (error) {
+    if (error?.code === "P2025") {
+      return withCors(request, Response.json({ success: false, error: "Price history not found" }, { status: 404 }));
+    }
+
     return withCors(
       request,
-      Response.json({ success: false, error: error.message || "Failed to delete item" }, { status: 500 })
+      Response.json({ success: false, error: error.message || "Failed to delete price history" }, { status: 500 })
     );
   }
 }

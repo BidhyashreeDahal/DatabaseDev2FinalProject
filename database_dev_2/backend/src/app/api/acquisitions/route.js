@@ -4,6 +4,8 @@
  */
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
+import { getSessionUser } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -12,6 +14,14 @@ export async function OPTIONS(req) {
 export async function GET(request) {
   const prisma = createPrismaClient();
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "READ_ACQUISITION")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim();
     const rows = await prisma.acquisition.findMany({
@@ -68,13 +78,29 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.userId) {
+      return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
+    }
+    if (!hasPermission(sessionUser.role, "CREATE_ACQUISITION")) {
+      return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
+    }
+
     // TODO: Extract body (supplierId, itemId, quantity, cost, date, notes)
     // Validate using validateAcquisitionPayload, check permissions (MANAGER/ADMIN)
     // Call acquisitionService.createAcquisition - updates item quantity
     // Log audit event: {action: 'CREATE_ACQUISITION', resourceId, userId}
     // Return created acquisition with 201 status
-    return Response.json({ success: false, error: "Not implemented" }, { status: 501 });
+    return withCors(
+      request,
+      Response.json({ success: false, error: "Not implemented" }, { status: 501 }),
+      ["GET", "POST", "OPTIONS"]
+    );
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    return withCors(
+      request,
+      Response.json({ success: false, error: error.message || "Failed to create acquisition" }, { status: 500 }),
+      ["GET", "POST", "OPTIONS"]
+    );
   }
 }
