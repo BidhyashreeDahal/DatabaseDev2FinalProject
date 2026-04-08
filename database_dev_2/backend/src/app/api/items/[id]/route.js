@@ -1,6 +1,7 @@
 import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
+import { logAuditEvent } from "@/lib/audit";
 import { hasPermission } from "@/lib/permissions";
 
 function parseId(params) {
@@ -128,6 +129,16 @@ export async function PUT(request, { params }) {
         });
       }
 
+      // Audit (update)
+      try {
+        await logAuditEvent(tx, {
+          action: "UPDATE_ITEM",
+          resourceType: "item",
+          resourceId: id,
+          userId: sessionUser.userId,
+          summary: `Updated item #${id} "${updateData?.title || ""}".`.trim(),
+        });
+      } catch {}
       return updatedItem;
     });
     return withCors(request, Response.json({ success: true, item: updated }, { status: 200 }));
@@ -165,6 +176,15 @@ export async function DELETE(request, { params }) {
       await tx.map.deleteMany({ where: { item_id: id } });
       await tx.periodical.deleteMany({ where: { item_id: id } });
       await tx.item.delete({ where: { item_id: id } });
+      try {
+        await logAuditEvent(tx, {
+          action: "DELETE_ITEM",
+          resourceType: "item",
+          resourceId: id,
+          userId: sessionUser.userId,
+          summary: `Deleted item #${id}`,
+        });
+      } catch {}
     });
     return withCors(request, Response.json({ success: true, message: "Item deleted successfully" }, { status: 200 }));
   } catch (error) {

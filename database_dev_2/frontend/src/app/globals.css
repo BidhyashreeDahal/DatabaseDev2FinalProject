@@ -88,6 +88,14 @@ body {
   z-index: 1;
 }
 
+/* Subtle old-books background utility */
+.bg-books {
+  background-image: url("/old-books.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .data-card {
   border: 1px solid #ddd8ca;
   border-radius: 0.9rem;

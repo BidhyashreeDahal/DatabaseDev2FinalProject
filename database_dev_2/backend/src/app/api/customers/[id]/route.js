@@ -2,6 +2,8 @@ import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { customerService } from "@/services/customerService";
+import { createPrismaClient } from "@/lib/prisma";
+import { logAuditEvent } from "@/lib/audit";
 
 function parseId(params) {
   const id = Number(params?.id);
@@ -50,6 +52,7 @@ export async function PATCH(request, { params }) {
   }
 
   try {
+    const prisma = createPrismaClient();
     const sessionUser = await getSessionUser();
     if (!sessionUser?.userId) {
       return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
@@ -60,6 +63,15 @@ export async function PATCH(request, { params }) {
 
     const payload = await request.json();
     const customer = await customerService.updateCustomer(id, payload);
+    try {
+      await logAuditEvent(prisma, {
+        action: "UPDATE_CUSTOMER",
+        resourceType: "customer",
+        resourceId: id,
+        userId: sessionUser.userId,
+        summary: `Updated customer #${id}`,
+      });
+    } catch {}
     return withCors(
       request,
       Response.json({ success: true, customer }, { status: 200 }),
@@ -82,6 +94,7 @@ export async function DELETE(request, { params }) {
   }
 
   try {
+    const prisma = createPrismaClient();
     const sessionUser = await getSessionUser();
     if (!sessionUser?.userId) {
       return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
@@ -91,6 +104,15 @@ export async function DELETE(request, { params }) {
     }
 
     await customerService.deleteCustomer(id);
+    try {
+      await logAuditEvent(prisma, {
+        action: "DELETE_CUSTOMER",
+        resourceType: "customer",
+        resourceId: id,
+        userId: sessionUser.userId,
+        summary: `Deleted customer #${id}`,
+      });
+    } catch {}
     return withCors(
       request,
       Response.json({ success: true, message: "Customer deleted successfully" }, { status: 200 }),

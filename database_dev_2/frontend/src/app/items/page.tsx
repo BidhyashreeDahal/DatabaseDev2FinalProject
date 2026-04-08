@@ -21,6 +21,9 @@ export default function ItemsPage() {
   const { user } = useAuth();
   const [rows, setRows] = useState<ItemRow[]>([]);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [total, setTotal] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [minPrice, setMinPrice] = useState("");
   const [loading, setLoading] = useState(true);
@@ -34,8 +37,11 @@ export default function ItemsPage() {
       try {
         setLoading(true);
         setError("");
-        const query = search ? `?search=${encodeURIComponent(search)}` : "";
-        const res = await fetch(`${API_BASE_URL}/api/items${query}`, {
+        const params = new URLSearchParams();
+        if (search) params.set("search", search);
+        params.set("page", String(page));
+        params.set("limit", String(limit));
+        const res = await fetch(`${API_BASE_URL}/api/items?${params.toString()}`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -44,6 +50,9 @@ export default function ItemsPage() {
         }
         if (active) {
           setRows(data.items ?? []);
+          setTotal(Number(data.total || 0));
+          setPage(Number(data.page || 1));
+          setLimit(Number(data.limit || limit));
         }
       } catch (err) {
         if (active) {
@@ -60,7 +69,7 @@ export default function ItemsPage() {
     return () => {
       active = false;
     };
-  }, [search]);
+  }, [search, page, limit]);
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
@@ -73,7 +82,7 @@ export default function ItemsPage() {
     });
   }, [rows, categoryFilter, minPrice]);
 
-  const visibleRows = useMemo(() => filteredRows.slice(0, 30), [filteredRows]);
+  const visibleRows = filteredRows;
   const role = String(user?.role || "").toLowerCase();
   const canCreate = canAccess(role, "CREATE_ITEM");
   const canUpdate = canAccess(role, "UPDATE_ITEM");
@@ -107,7 +116,7 @@ export default function ItemsPage() {
         <div className="rounded-2xl border border-[#ded8c8] bg-[#faf8f1] p-3 md:p-4">
           <div className="grid gap-3 md:grid-cols-5">
           <input
-            placeholder="Search title / ID"
+            placeholder="Search title / description"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="input text-sm"
@@ -144,6 +153,40 @@ export default function ItemsPage() {
           Signed in as <span className="font-semibold">{role || "unknown"}</span>.{" "}
           {canDelete ? "You can view, edit, and delete items." : canUpdate ? "You can view and edit items." : "You can only view items."}
         </p>
+        <div className="flex items-center justify-between gap-3 text-sm text-[#536862]">
+          <div>
+            Page <span className="font-semibold">{page}</span> of{" "}
+            <span className="font-semibold">{Math.max(1, Math.ceil(total / limit) || 1)}</span> ·{" "}
+            <span className="font-semibold">{total}</span> items
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={limit}
+              onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
+              className="input w-[92px] px-2 py-1 text-xs"
+            >
+              <option value={10}>10 / page</option>
+              <option value={20}>20 / page</option>
+              <option value={50}>50 / page</option>
+            </select>
+            <button
+              className="btn-secondary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page <= 1 || loading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              type="button"
+            >
+              Prev
+            </button>
+            <button
+              className="btn-primary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page >= Math.max(1, Math.ceil(total / limit) || 1) || loading}
+              onClick={() => setPage((p) => p + 1)}
+              type="button"
+            >
+              Next
+            </button>
+          </div>
+        </div>
 
         <div className="space-y-3 md:hidden">
           {!loading &&

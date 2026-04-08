@@ -2,6 +2,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -20,28 +21,46 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim();
+    const pageParam = Number(searchParams.get("page")) || 1;
+    const limitParam = Math.min(Math.max(Number(searchParams.get("limit")) || 20, 1), 100);
+    const page = pageParam < 1 ? 1 : pageParam;
+    const take = limitParam;
+    const skip = (page - 1) * take;
 
-    const items = await prisma.item.findMany({
+    const where = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+          ],
+        }
+      : undefined;
+
+    const [total, items] = await Promise.all([
+      prisma.item.count({ where }),
+      prisma.item.findMany({
       where: search
-        ? {
-            OR: [
-              { title: { contains: search, mode: "insensitive" } },
-              { description: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : undefined,
-      include: {
-        book: true,
-        map: true,
-        periodical: true,
-        sales: {
-          select: { sales_id: true },
-          take: 1,
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" } },
+                { description: { contains: search, mode: "insensitive" } },
+              ],
+            }
+          : undefined,
+        include: {
+          book: true,
+          map: true,
+          periodical: true,
+          sales: {
+            select: { sales_id: true },
+            take: 1,
+          },
         },
-      },
-      orderBy: { item_id: "desc" },
-      take: 50,
-    });
+        orderBy: { item_id: "desc" },
+        skip,
+        take,
+      }),
+    ]);
 
     const formatted = items.map((item) => ({
       itemId: item.item_id,
@@ -52,11 +71,18 @@ export async function GET(request) {
       status: item.sales.length > 0 ? "Sold" : "In Stock",
     }));
 
-    return withCors(request, Response.json({ success: true, items: formatted }, { status: 200 }), [
+    return withCors(
+      request,
+      Response.json(
+        { success: true, items: formatted, page, limit: take, total },
+        { status: 200 }
+      ),
+      [
       "GET",
       "POST",
       "OPTIONS",
-    ]);
+      ]
+    );
   } catch (error) {
     return withCors(
       request,
@@ -265,6 +291,15 @@ export async function POST(request) {
         }
       }
 
+      try {
+        await logAuditEvent(tx, {
+          action: "CREATE_ITEM",
+          resourceType: "item",
+          resourceId: item.item_id,
+          userId: sessionUser.userId,
+          summary: `Created item #${item.item_id} "${title}"`,
+        });
+      } catch {}
       return item;
     });
 

@@ -421,6 +421,7 @@ export default function CreateItemPage() {
                   <option value="Book">Book</option>
                   <option value="Map">Map</option>
                   <option value="Magazine">Magazine / Periodical</option>
+                  <option value="Other">Other</option>
               </select>
             </Field>
 
@@ -450,6 +451,7 @@ export default function CreateItemPage() {
                 type="number"
                 step="0.01"
                 min="0"
+                max="1000000"
                 placeholder="0.00"
                 value={acquisitionCost}
                 onChange={(e) => setAcquisitionCost(e.target.value)}
@@ -463,6 +465,7 @@ export default function CreateItemPage() {
                 type="number"
                 step="0.01"
                 min="0"
+                max="1000000"
                 placeholder="0.00"
                 value={sellingPrice}
                 onChange={(e) => setSellingPrice(e.target.value)}

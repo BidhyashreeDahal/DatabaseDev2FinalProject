@@ -90,9 +90,6 @@ export default function CustomersPage() {
               onChange={(e) => setContact(e.target.value)}
               className="input text-sm"
             />
-            <div className="rounded-xl border border-stone-300 bg-stone-100 px-3 py-2 text-sm text-stone-600">
-              Customer directory
-            </div>
             <button
               disabled={!canCreate}
               onClick={() => router.push("/customers/create")}

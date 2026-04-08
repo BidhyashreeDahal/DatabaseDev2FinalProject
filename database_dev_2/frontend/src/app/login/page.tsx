@@ -36,8 +36,8 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-[#0f302a] text-[#f6edd7]">
       <div className="mx-auto grid min-h-screen w-full max-w-[1320px] gap-6 px-5 py-8 lg:grid-cols-[1fr_1.05fr] lg:gap-8 lg:px-8">
-        <section className="order-2 relative self-center rounded-3xl border border-[#cfac59]/30 bg-[#133f36] p-7 shadow-xl shadow-black/20 md:p-8 lg:order-1">
-          <div className="paper-grain absolute inset-0 rounded-3xl opacity-25" />
+        <section className="order-2 relative self-center rounded-3xl border border-[#cfac59]/30 bg-[#133f36] p-7 shadow-xl shadow-black/20 md:p-8 lg:order-1 overflow-hidden">
+          <div className="paper-grain absolute inset-0 rounded-3xl opacity-20" />
           <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_20%_15%,rgba(221,184,91,0.11),transparent_45%)]" />
           <div className="relative">
             <div className="flex items-center gap-3">
@@ -47,6 +47,10 @@ export default function LoginPage() {
                 <p className="mt-1 text-sm uppercase tracking-[0.2em] text-[#ecd9a6]">Reading Room</p>
               </div>
             </div>
+
+            <p className="mt-4 text-sm uppercase tracking-[0.22em] text-[#e6d59f]/90">
+              Welcome to the Britannicus Reading Room
+            </p>
 
             <h1 className="mt-10 brand-serif text-[2.6rem] leading-tight text-[#f9edce]">
               Curated inventory,

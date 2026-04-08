@@ -38,7 +38,7 @@ export async function GET(request) {
       ]);
     }
 
-    const [sales, acquisitions, users] = await Promise.all([
+    const [sales, acquisitions, users, events] = await Promise.all([
       prisma.sales.findMany({
         include: {
           user: { select: { first_name: true, last_name: true, email: true } },
@@ -63,6 +63,21 @@ export async function GET(request) {
         orderBy: { user_id: "desc" },
         take: 50,
       }),
+      prisma.$queryRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS audit_event (
+          id SERIAL PRIMARY KEY,
+          action VARCHAR(50) NOT NULL,
+          resource_type VARCHAR(50) NOT NULL,
+          resource_id INTEGER,
+          user_id INTEGER,
+          summary VARCHAR(400),
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        SELECT id, action, resource_type, resource_id, user_id, summary, created_at
+        FROM audit_event
+        ORDER BY created_at DESC
+        LIMIT 200;
+      `),
     ]);
 
     const saleLogs = sales.map((sale) => ({
@@ -95,7 +110,19 @@ export async function GET(request) {
       timestamp: user.created_date || null,
     }));
 
-    const auditLogs = [...saleLogs, ...acquisitionLogs, ...userLogs]
+    const eventLogs = Array.isArray(events)
+      ? events.map((e) => ({
+          id: `evt-${e.id}`,
+          action: String(e.action),
+          actor: "System",
+          resourceType: String(e.resource_type),
+          resourceId: Number(e.resource_id ?? 0),
+          summary: String(e.summary ?? ""),
+          timestamp: e.created_at,
+        }))
+      : [];
+
+    const auditLogs = [...eventLogs, ...saleLogs, ...acquisitionLogs, ...userLogs]
       .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
       .slice(0, 100);
 

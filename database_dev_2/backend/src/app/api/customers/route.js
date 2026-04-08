@@ -2,6 +2,8 @@ import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { customerService } from "@/services/customerService";
+import { createPrismaClient } from "@/lib/prisma";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -38,6 +40,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const prisma = createPrismaClient();
     const sessionUser = await getSessionUser();
     if (!sessionUser?.userId) {
       return withCors(request, Response.json({ success: false, error: "Unauthorized" }, { status: 401 }));
@@ -48,6 +51,15 @@ export async function POST(request) {
 
     const payload = await request.json();
     const customer = await customerService.createCustomer(payload);
+    try {
+      await logAuditEvent(prisma, {
+        action: "CREATE_CUSTOMER",
+        resourceType: "customer",
+        resourceId: customer.customerId || customer.customer_id,
+        userId: sessionUser.userId,
+        summary: `Created customer ${payload.firstName || ""} ${payload.lastName || ""}`.trim(),
+      });
+    } catch {}
 
     return withCors(
       request,
