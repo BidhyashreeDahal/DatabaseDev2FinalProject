@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="C:\Users\bidhy\DatabaseDev2FinalProject\README.md" alt="Britannicus Reading Room logo" width="450" />
+  <<img src="./database_dev_2/frontend/Logo.png" alt="Britannicus Reading Room logo" width="400" />
 </p>
 
 # Britannicus Reading Room
