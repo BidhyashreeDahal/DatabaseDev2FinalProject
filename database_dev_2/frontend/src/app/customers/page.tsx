@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { apiFetch } from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
+import { canAccess } from "@/lib/permissions";
 
 type CustomerRow = {
   customerId: number;
+  firstName?: string;
+  lastName?: string;
   name: string;
   email: string | null;
   phone: string | null;
@@ -19,9 +22,9 @@ export default function CustomersPage() {
   const router = useRouter();
   const { user } = useAuth();
   const role = String(user?.role || "").toLowerCase();
-  const canCreate = role === "admin" || role === "manager";
-  const canUpdate = role === "admin" || role === "manager";
-  const canDelete = role === "admin";
+  const canCreate = canAccess(role, "CREATE_CUSTOMER");
+  const canUpdate = canAccess(role, "UPDATE_CUSTOMER");
+  const canDelete = canAccess(role, "DELETE_CUSTOMER");
 
   const [rows, setRows] = useState<CustomerRow[]>([]);
   const [search, setSearch] = useState("");
@@ -88,7 +91,7 @@ export default function CustomersPage() {
               className="input text-sm"
             />
             <div className="rounded-xl border border-stone-300 bg-stone-100 px-3 py-2 text-sm text-stone-600">
-              All customer types
+              Customer directory
             </div>
             <button
               disabled={!canCreate}
@@ -109,8 +112,8 @@ export default function CustomersPage() {
             <thead className="bg-stone-50 text-left text-slate-600">
               <tr>
                 <th className="px-3 py-2 font-medium">Customer ID</th>
-                <th className="px-3 py-2 font-medium">Name</th>
-                <th className="px-3 py-2 font-medium">Type</th>
+                <th className="px-3 py-2 font-medium">First Name</th>
+                <th className="px-3 py-2 font-medium">Last Name</th>
                 <th className="px-3 py-2 font-medium">Email</th>
                 <th className="px-3 py-2 font-medium">Phone</th>
                 <th className="px-3 py-2 font-medium">Purchases</th>
@@ -145,8 +148,8 @@ export default function CustomersPage() {
                 rows.map((row) => (
                   <tr key={row.customerId} className="border-t border-slate-100 hover:bg-stone-50/70">
                     <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.customerId}</td>
-                    <td className="px-3 py-2">{row.name}</td>
-                    <td className="px-3 py-2">Customer</td>
+                    <td className="px-3 py-2">{row.firstName || row.name.split(" ").slice(0, -1).join(" ") || row.name}</td>
+                    <td className="px-3 py-2">{row.lastName || row.name.split(" ").slice(-1).join(" ") || "-"}</td>
                     <td className="px-3 py-2">{row.email || "-"}</td>
                     <td className="px-3 py-2">{row.phone || "-"}</td>
                     <td className="px-3 py-2">{row.purchases}</td>

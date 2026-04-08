@@ -73,6 +73,8 @@ function toListCustomer(customer) {
 
   return {
     customerId: customer.customer_id,
+    firstName: customer.first_name,
+    lastName: customer.last_name,
     name: formatName(customer.first_name, customer.last_name),
     email: customer.email,
     phone: customer.phone,

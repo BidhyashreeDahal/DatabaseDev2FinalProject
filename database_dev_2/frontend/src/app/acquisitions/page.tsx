@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
+import { canAccess } from "@/lib/permissions";
 
 type AcquisitionRow = {
   acquisitionId: number;
@@ -51,7 +52,7 @@ export default function AcquisitionsPage() {
   const visibleRows = useMemo(() => rows.slice(0, 50), [rows]);
 
   const role = String(user?.role || "").toLowerCase();
-  const canCreate = role === "admin" || role === "manager";
+  const canCreate = canAccess(role, "CREATE_ACQUISITION");
 
   return (
     <AppShell pageTitle="Acquisitions" pageDescription="Track inventory purchases and source records.">

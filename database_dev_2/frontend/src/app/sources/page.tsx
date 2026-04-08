@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
+import { canAccess } from "@/lib/permissions";
 
 type SourceRow = {
   sourceId: number;
@@ -49,9 +50,9 @@ export default function SourcesPage() {
   const visibleRows = useMemo(() => rows.slice(0, 50), [rows]);
 
   const role = String(user?.role || "").toLowerCase();
-  const canCreate = role === "admin" || role === "manager";
-  const canUpdate = role === "admin" || role === "manager";
-  const canDelete = role === "admin";
+  const canCreate = canAccess(role, "CREATE_SOURCE");
+  const canUpdate = canAccess(role, "UPDATE_SOURCE");
+  const canDelete = canAccess(role, "DELETE_SOURCE");
 
   async function handleDelete(sourceId: number) {
     const confirmed = window.confirm("Delete this source?");

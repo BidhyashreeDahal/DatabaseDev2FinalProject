@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
+import { canAccess } from "@/lib/permissions";
 
 type ItemRow = {
   itemId: number;
@@ -74,9 +75,9 @@ export default function ItemsPage() {
 
   const visibleRows = useMemo(() => filteredRows.slice(0, 30), [filteredRows]);
   const role = String(user?.role || "").toLowerCase();
-  const canCreate = role === "admin" || role === "manager";
-  const canUpdate = role === "admin" || role === "manager";
-  const canDelete = role === "admin";
+  const canCreate = canAccess(role, "CREATE_ITEM");
+  const canUpdate = canAccess(role, "UPDATE_ITEM");
+  const canDelete = canAccess(role, "DELETE_ITEM");
 
   async function handleDelete(itemId: number) {
     const confirmed = window.confirm("Delete this item?");
