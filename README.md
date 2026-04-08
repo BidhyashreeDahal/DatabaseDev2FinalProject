@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./frontend/public/reading-room-logo.svg" alt="Britannicus Reading Room logo" width="84" />
+  <img src="database_dev_2\frontend\Britannicus Reading Room logo design_files" alt="Britannicus Reading Room logo" width="84" />
 </p>
 
 # Britannicus Reading Room
