@@ -1,8 +1,9 @@
 <p align="center">
-  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="84" />
+  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="180" />
 </p>
 
-# Britannicus Reading Room
+<h1 align="center">The Britannicus Reading Room</h1>
+<p align="center"><strong>Rare Books • Antique Maps • Fine Editions</strong></p>
 
 Database-driven inventory and sales management system for the Britannicus Reading Room case study.
 
