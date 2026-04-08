@@ -1,5 +1,9 @@
 <p align="center">
+<<<<<<< HEAD
   <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="400" />
+=======
+  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="180" />
+>>>>>>> 27bfa00 (Fix cross-origin auth cookies for Vercel frontend and Render backend)
 </p>
 
 <h1 align="center">The Britannicus Reading Room</h1>

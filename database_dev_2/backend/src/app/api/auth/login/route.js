@@ -31,13 +31,15 @@ export async function POST(req) {
       lastName: user.lastName,
     });
 
+    const isProduction = process.env.NODE_ENV === "production";
     const response = NextResponse.json({ success: true, user }, { status: 200 });
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProduction,
+      // Cross-site frontend (Vercel) -> backend (Render) requires SameSite=None in production.
+      sameSite: isProduction ? "none" : "lax",
       path: "/",
       maxAge: 60 * 60 * 24,
     });
