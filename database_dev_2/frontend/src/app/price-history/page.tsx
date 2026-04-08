@@ -191,7 +191,7 @@ export default function PriceHistoryPage() {
           />
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="table-shell table-scroll">
           <table className="min-w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>

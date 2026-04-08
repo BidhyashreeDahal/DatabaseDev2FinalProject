@@ -107,7 +107,7 @@ export default function CustomersPage() {
           Signed in as <span className="font-semibold">{role || "unknown"}</span>. {canDelete ? "You can view, edit, and delete customers." : canUpdate ? "You can view and edit customers." : "You can only view customers."}
         </p>
 
-        <div className="table-shell overflow-x-auto">
+        <div className="table-shell table-scroll">
           <table className="min-w-full text-sm">
             <thead className="bg-stone-50 text-left text-slate-600">
               <tr>

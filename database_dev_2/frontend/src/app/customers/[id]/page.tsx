@@ -122,7 +122,7 @@ export default function CustomerDetailsPage() {
               {customer.sales.length === 0 ? (
                 <p className="mt-3 text-sm text-slate-600">No sales history available for this customer.</p>
               ) : (
-                <div className="mt-4 overflow-x-auto">
+                <div className="mt-4 table-shell table-scroll">
                   <table className="min-w-full text-sm">
                     <thead className="bg-slate-50 text-left text-slate-600">
                       <tr>

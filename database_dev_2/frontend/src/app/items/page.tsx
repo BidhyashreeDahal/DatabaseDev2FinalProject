@@ -204,7 +204,7 @@ export default function ItemsPage() {
             ))}
         </div>
 
-        <div className="table-shell hidden overflow-x-auto md:block">
+        <div className="table-shell table-scroll hidden md:block">
           <table className="min-w-full text-sm">
             <thead className="text-left text-slate-600">
               <tr>

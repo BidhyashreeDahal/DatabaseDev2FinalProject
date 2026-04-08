@@ -64,7 +64,7 @@ export default function SourceDetailsPage() {
 
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">Recent Acquisitions</h3>
-            <div className="table-shell overflow-x-auto">
+            <div className="table-shell table-scroll">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr>

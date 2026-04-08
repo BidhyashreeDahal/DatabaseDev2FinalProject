@@ -118,7 +118,7 @@ export default function UsersPage() {
             ))}
         </div>
 
-        <div className="table-shell hidden overflow-x-auto md:block">
+        <div className="table-shell table-scroll hidden md:block">
           <table className="min-w-full text-sm">
             <thead>
               <tr>
