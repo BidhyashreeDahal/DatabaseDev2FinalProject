@@ -35,58 +35,49 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#0f302a] text-[#f6edd7]">
-      <div className="mx-auto grid min-h-screen w-full max-w-[1400px] gap-8 px-6 py-10 lg:grid-cols-[0.82fr_1.18fr]">
-        <section className="order-2 relative self-center rounded-3xl border border-[#ddb85b]/35 bg-[#124138] p-7 shadow-xl shadow-black/25 md:p-8 lg:order-1">
-          <div className="paper-grain absolute inset-0 rounded-3xl opacity-40" />
-          <div className="linen-grain absolute inset-0 rounded-3xl opacity-30" />
-          <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_20%_15%,rgba(221,184,91,0.1),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(221,184,91,0.03),transparent_40%)]" />
+      <div className="mx-auto grid min-h-screen w-full max-w-[1320px] gap-6 px-5 py-8 lg:grid-cols-[1fr_1.05fr] lg:gap-8 lg:px-8">
+        <section className="order-2 relative self-center rounded-3xl border border-[#cfac59]/30 bg-[#133f36] p-7 shadow-xl shadow-black/20 md:p-8 lg:order-1">
+          <div className="paper-grain absolute inset-0 rounded-3xl opacity-25" />
+          <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_20%_15%,rgba(221,184,91,0.11),transparent_45%)]" />
           <div className="relative">
             <div className="flex items-center gap-3">
-              <ReadingRoomLogo size={60} />
+              <ReadingRoomLogo size={56} />
               <div>
-                <p className="brand-serif text-5xl font-semibold leading-none text-[#f8ebc8]">
-                  Britannicus
-                </p>
-                <p className="mt-1.5 text-base uppercase tracking-[0.2em] text-[#ecd9a6]">
-                  Reading Room
-                </p>
+                <p className="brand-serif text-4xl font-semibold leading-none text-[#f8ebc8]">Britannicus</p>
+                <p className="mt-1 text-sm uppercase tracking-[0.2em] text-[#ecd9a6]">Reading Room</p>
               </div>
             </div>
 
-            <div className="my-8 h-px w-full bg-[#ddb85b]/55" />
-
-            <h1 className="brand-serif text-[3.2rem] leading-tight text-[#f9edce]">
-              Curate inventory
+            <h1 className="mt-10 brand-serif text-[2.6rem] leading-tight text-[#f9edce]">
+              Curated inventory,
               <br />
-              with confidence.
+              modern control.
             </h1>
-            <p className="mt-4 max-w-xl text-lg leading-relaxed text-[#f1e1ba]">
-              Built for rare books and antique maps. Record provenance, track condition,
-              and manage pricing with confidence.
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-[#f1e1ba]">
+              Built for rare books and antique maps. Manage acquisitions, provenance, and
+              pricing in one secure workspace.
             </p>
 
-            <div className="mt-7">
+            <div className="mt-8 rounded-2xl border border-[#d6b768]/30 bg-[#0f352e]/55 p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-[#ddc27c]">Collection Focus</p>
-              <p className="mt-2 brand-serif text-2xl text-[#f5e7c1]">
-                Curated acquisitions for a small but serious reading room business.
+              <p className="mt-2 brand-serif text-xl text-[#f5e7c1]">
+                Rare books, antique maps, and documented provenance.
               </p>
             </div>
           </div>
         </section>
 
         <section className="order-1 flex items-center lg:order-2">
-          <div className="paper-grain w-full rounded-3xl border border-[#d8c79e] bg-[#fffaf0] p-7 shadow-xl shadow-black/35 md:p-9">
+          <div className="w-full rounded-3xl border border-[#d8c79e] bg-[#fffaf0] p-7 shadow-xl shadow-black/30 md:p-9">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.2em] text-[#5f7570]">
-                Staff Access Portal
-              </p>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#5f7570]">Staff Access Portal</p>
               <span className="rounded-md border border-[#d8c79e] bg-[#f7f0dd] px-2 py-1 text-xs font-semibold tracking-wide text-[#35544c]">
                 BRR
               </span>
             </div>
             <h2 className="mt-2 brand-serif text-4xl text-[#173b33]">Sign In</h2>
             <p className="mt-2 text-sm text-[#556963]">
-              Professional inventory management for acquisitions, provenance, and pricing history.
+              Access inventory, customers, acquisitions, and pricing history.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-7 space-y-5">
@@ -123,14 +114,12 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="btn-primary w-full px-4 py-3 text-base tracking-[0.12em] shadow-md shadow-[#0f302a]/25 hover:-translate-y-0.5 disabled:opacity-60"
+                className="btn-primary w-full px-4 py-3 text-base tracking-[0.1em] shadow-md shadow-[#0f302a]/20 disabled:opacity-60"
               >
                 {submitting ? "SIGNING IN..." : "ENTER READING ROOM"}
               </button>
 
-              <p className="text-center text-xs text-[#7b8f89]">
-                Authorized staff only.
-              </p>
+              <p className="text-center text-xs text-[#7b8f89]">Authorized staff only.</p>
             </form>
           </div>
         </section>

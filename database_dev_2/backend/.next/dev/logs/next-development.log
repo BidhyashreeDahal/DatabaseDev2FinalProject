@@ -111,3 +111,9 @@
 {"timestamp":"02:13:14.848","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
 {"timestamp":"02:13:29.741","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
 {"timestamp":"02:13:29.864","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:16:34.350","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:16:34.431","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:17:18.830","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:17:19.193","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:17:23.871","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
+{"timestamp":"02:17:23.987","source":"Server","level":"LOG","message":"Fetched price history data: [{...},{...},{...},{...},{...},{...},{...},{...},{...},{...}]"}
