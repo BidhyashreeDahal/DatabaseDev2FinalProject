@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="250" />
+  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="400" />
 </p>
 
 <h1 align="center">The Britannicus Reading Room</h1>
