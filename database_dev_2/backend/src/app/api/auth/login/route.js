@@ -31,15 +31,15 @@ export async function POST(req) {
       lastName: user.lastName,
     });
 
-    const isProduction = process.env.NODE_ENV === "production";
     const response = NextResponse.json({ success: true, user }, { status: 200 });
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,
       httpOnly: true,
-      secure: isProduction,
-      // Cross-site frontend (Vercel) -> backend (Render) requires SameSite=None in production.
-      sameSite: isProduction ? "none" : "lax",
+      // Frontend and backend are on different domains (Vercel/Render),
+      // so cross-site cookie settings are required for auth to persist.
+      secure: true,
+      sameSite: "none",
       path: "/",
       maxAge: 60 * 60 * 24,
     });
