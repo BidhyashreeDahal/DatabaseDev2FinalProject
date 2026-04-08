@@ -3,6 +3,8 @@
 </p>
 
 # Britannicus Reading Room
+LIVE
+https://britannicus-reading-room-git-main-bidhyashreedahals-projects.vercel.app/
 
 Database-driven inventory and sales management system for the Britannicus Reading Room case study.
 
