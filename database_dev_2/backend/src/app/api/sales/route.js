@@ -2,6 +2,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -171,6 +172,14 @@ export async function POST(request) {
       soldBy: `${sale.user.first_name} ${sale.user.last_name}`,
       paymentMethod: sale.payment_method.payment_method,
     };
+
+    await logAuditEvent(prisma, {
+      action: "CREATE_SALE",
+      resourceType: "sale",
+      resourceId: sale.sales_id,
+      userId: Number(sessionUser.userId),
+      summary: `Created sale for item #${sale.item_id} to customer #${sale.customer_id}`,
+    });
 
     return withCors(
       request,

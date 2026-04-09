@@ -3,6 +3,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 function normalizeRoleName(input) {
   return String(input || "").trim().toLowerCase();
@@ -33,11 +34,20 @@ export async function GET(request) {
   }
 
   try {
-    const [users, roles] = await Promise.all([
+    const { searchParams } = new URL(request.url);
+    const pageParam = Number(searchParams.get("page")) || 1;
+    const limitParam = Math.min(Math.max(Number(searchParams.get("limit")) || 20, 1), 100);
+    const page = pageParam < 1 ? 1 : pageParam;
+    const take = limitParam;
+    const skip = (page - 1) * take;
+
+    const [total, users, roles] = await Promise.all([
+      prisma.user.count(),
       prisma.user.findMany({
         include: { role: true },
         orderBy: { user_id: "desc" },
-        take: 100,
+        skip,
+        take,
       }),
       prisma.role.findMany({
         orderBy: { role_name: "asc" },
@@ -64,7 +74,10 @@ export async function GET(request) {
 
     return withCors(
       request,
-      Response.json({ success: true, users: formattedUsers, roles: formattedRoles }, { status: 200 }),
+      Response.json(
+        { success: true, users: formattedUsers, roles: formattedRoles, page, limit: take, total },
+        { status: 200 }
+      ),
       ["GET", "POST", "OPTIONS"]
     );
   } catch (error) {
@@ -150,6 +163,14 @@ export async function POST(request) {
         created_date: new Date(),
       },
       include: { role: true },
+    });
+
+    await logAuditEvent(prisma, {
+      action: "CREATE_USER",
+      resourceType: "user",
+      resourceId: user.user_id,
+      userId: Number(sessionUser.userId),
+      summary: `Created user ${user.first_name} ${user.last_name} (${user.email})`,
     });
 
     return withCors(

@@ -2,6 +2,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 function parseId(params) {
   const id = Number(params?.id);
@@ -115,6 +116,14 @@ export async function PUT(request, { params }) {
       },
     });
 
+    await logAuditEvent(prisma, {
+      action: "UPDATE_PRICE_HISTORY",
+      resourceType: "price_history",
+      resourceId: updated.price_history_id,
+      userId: Number(sessionUser.userId),
+      summary: `Updated market value history for item #${updated.item_id}`,
+    });
+
     return withCors(
       request,
       Response.json(
@@ -160,7 +169,22 @@ export async function DELETE(request, { params }) {
       return withCors(request, Response.json({ success: false, error: "Forbidden" }, { status: 403 }));
     }
 
+    const existing = await prisma.price_history.findUnique({
+      where: { price_history_id: id },
+      select: { price_history_id: true, item_id: true, market_value: true },
+    });
+    if (!existing) {
+      return withCors(request, Response.json({ success: false, error: "Price history not found" }, { status: 404 }));
+    }
+
     await prisma.price_history.delete({ where: { price_history_id: id } });
+    await logAuditEvent(prisma, {
+      action: "DELETE_PRICE_HISTORY",
+      resourceType: "price_history",
+      resourceId: id,
+      userId: Number(sessionUser.userId),
+      summary: `Deleted price history for item #${existing.item_id} (value ${Number(existing.market_value)})`,
+    });
     return withCors(request, Response.json({ success: true, message: "Price history deleted successfully" }, { status: 200 }));
   } catch (error) {
     if (error?.code === "P2025") {

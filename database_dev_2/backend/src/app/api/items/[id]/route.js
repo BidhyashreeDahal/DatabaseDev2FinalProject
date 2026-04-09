@@ -2,6 +2,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { canReadPricing, canReadProvenance, canUpdatePricing, hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 function parseId(params) {
   const id = Number(params?.id);

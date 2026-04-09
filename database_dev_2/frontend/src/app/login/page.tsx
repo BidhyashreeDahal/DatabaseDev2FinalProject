@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ReadingRoomLogo } from "@/components/layout/ReadingRoomLogo";
@@ -43,16 +44,16 @@ export default function LoginPage() {
             <div className="flex items-center gap-3">
               <ReadingRoomLogo size={56} />
               <div>
-                <p className="brand-serif text-4xl font-semibold leading-none text-[#f8ebc8]">Britannicus</p>
-                <p className="mt-1 text-sm uppercase tracking-[0.2em] text-[#ecd9a6]">Reading Room</p>
+                <p className="hero-title text-4xl leading-none text-[#f8ebc8]">Britannicus</p>
+                <p className="hero-subtitle mt-1 text-sm text-[#ecd9a6]">Reading Room</p>
               </div>
             </div>
 
-            <p className="mt-4 text-sm uppercase tracking-[0.22em] text-[#e6d59f]/90">
+            <p className="hero-subtitle mt-4 text-xs text-[#e6d59f]/90">
               Welcome to the Britannicus Reading Room
             </p>
 
-            <h1 className="mt-10 brand-serif text-[2.6rem] leading-tight text-[#f9edce]">
+            <h1 className="hero-title mt-10 text-[2.6rem] text-[#f9edce]">
               Curated inventory,
               <br />
               modern control.
@@ -74,15 +75,24 @@ export default function LoginPage() {
         <section className="order-1 flex items-center lg:order-2">
           <div className="w-full rounded-3xl border border-[#d8c79e] bg-[#fffaf0] p-7 shadow-xl shadow-black/30 md:p-9">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.2em] text-[#5f7570]">Staff Access Portal</p>
+              <p className="hero-subtitle text-[11px] text-[#5f7570]">Staff Access Portal</p>
               <span className="rounded-md border border-[#d8c79e] bg-[#f7f0dd] px-2 py-1 text-xs font-semibold tracking-wide text-[#35544c]">
                 BRR
               </span>
             </div>
-            <h2 className="mt-2 brand-serif text-4xl text-[#173b33]">Sign In</h2>
+            <h2 className="page-title mt-2 text-4xl text-[#173b33]">Sign In</h2>
+            <span className="page-title-accent" />
             <p className="mt-2 text-sm text-[#556963]">
               Access inventory, customers, acquisitions, and pricing history.
             </p>
+            <div className="mt-4">
+              <Link
+                href="/"
+                className="inline-flex items-center rounded-lg border border-[#d8c79e] bg-[#f7f0dd] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#35544c] transition hover:bg-[#efe2c2]"
+              >
+                Back to Landing Page
+              </Link>
+            </div>
 
             <form onSubmit={handleSubmit} className="mt-7 space-y-5">
               <label className="block space-y-1">

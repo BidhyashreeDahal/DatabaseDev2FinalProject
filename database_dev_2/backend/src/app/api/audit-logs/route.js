@@ -38,98 +38,76 @@ export async function GET(request) {
       ]);
     }
 
-    const [sales, acquisitions, users, events] = await Promise.all([
-      prisma.sales.findMany({
-        include: {
-          user: { select: { first_name: true, last_name: true, email: true } },
-          item: { select: { title: true } },
-          customer: { select: { first_name: true, last_name: true } },
-        },
-        orderBy: { sales_id: "desc" },
-        take: 50,
-      }),
-      prisma.acquisition.findMany({
-        include: {
-          source: { select: { name: true } },
-          item: { select: { title: true, acquisition_date: true } },
-        },
-        orderBy: { acquisition_id: "desc" },
-        take: 50,
-      }),
-      prisma.user.findMany({
-        include: {
-          role: { select: { role_name: true } },
-        },
-        orderBy: { user_id: "desc" },
-        take: 50,
-      }),
-      prisma.$queryRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS audit_event (
-          id SERIAL PRIMARY KEY,
-          action VARCHAR(50) NOT NULL,
-          resource_type VARCHAR(50) NOT NULL,
-          resource_id INTEGER,
-          user_id INTEGER,
-          summary VARCHAR(400),
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-        SELECT id, action, resource_type, resource_id, user_id, summary, created_at
-        FROM audit_event
-        ORDER BY created_at DESC
-        LIMIT 200;
-      `),
+    const { searchParams } = new URL(request.url);
+    const pageParam = Number(searchParams.get("page")) || 1;
+    const limitParam = Math.min(Math.max(Number(searchParams.get("limit")) || 20, 1), 100);
+    const page = pageParam < 1 ? 1 : pageParam;
+    const take = limitParam;
+    const skip = (page - 1) * take;
+
+    // Ensure table exists, then select events (done sequentially to avoid multi‑statement quirks)
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS audit_event (
+        id SERIAL PRIMARY KEY,
+        action VARCHAR(50) NOT NULL,
+        resource_type VARCHAR(50) NOT NULL,
+        resource_id INTEGER,
+        user_id INTEGER,
+        summary VARCHAR(400),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    const [eventRows, totalEvents] = await Promise.all([
+      prisma.$queryRawUnsafe(
+        `SELECT
+           ae.id,
+           ae.action,
+           ae.resource_type,
+           ae.resource_id,
+           ae.user_id,
+           ae.summary,
+           ae.created_at,
+           u.first_name,
+           u.last_name,
+           u.email
+         FROM audit_event ae
+         LEFT JOIN "user" u ON u.user_id = ae.user_id
+         ORDER BY ae.created_at DESC
+         OFFSET $1 LIMIT $2`,
+        skip,
+        take
+      ),
+      prisma.$queryRawUnsafe(`SELECT COUNT(*)::int AS count FROM audit_event`),
     ]);
 
-    const saleLogs = sales.map((sale) => ({
-      id: `sale-${sale.sales_id}`,
-      action: "CREATE_SALE",
-      actor: sale.user ? `${sale.user.first_name} ${sale.user.last_name}` : "System",
-      resourceType: "sale",
-      resourceId: sale.sales_id,
-      summary: `Sold "${sale.item?.title || "Item"}" to ${sale.customer?.first_name || ""} ${sale.customer?.last_name || ""}`.trim(),
-      timestamp: sale.sales_date,
-    }));
+    const total = Array.isArray(totalEvents) && totalEvents[0]?.count ? Number(totalEvents[0].count) : 0;
 
-    const acquisitionLogs = acquisitions.map((acq) => ({
-      id: `acquisition-${acq.acquisition_id}`,
-      action: "CREATE_ACQUISITION",
-      actor: "System",
-      resourceType: "acquisition",
-      resourceId: acq.acquisition_id,
-      summary: `Acquired "${acq.item?.title || "Item"}" from ${acq.source?.name || "Source"}`,
-      timestamp: acq.item?.acquisition_date || null,
-    }));
-
-    const userLogs = users.map((user) => ({
-      id: `user-${user.user_id}`,
-      action: user.is_active ? "USER_ACTIVE" : "USER_DEACTIVATED",
-      actor: "Admin",
-      resourceType: "user",
-      resourceId: user.user_id,
-      summary: `User ${user.first_name} ${user.last_name} (${user.email}) - role: ${user.role?.role_name || "unknown"}`,
-      timestamp: user.created_date || null,
-    }));
-
-    const eventLogs = Array.isArray(events)
-      ? events.map((e) => ({
+    const eventLogs = Array.isArray(eventRows)
+      ? eventRows.map((e) => ({
           id: `evt-${e.id}`,
           action: String(e.action),
-          actor: "System",
+          actor:
+            e.first_name || e.last_name
+              ? `${e.first_name || ""} ${e.last_name || ""}`.trim()
+              : e.email
+                ? String(e.email)
+                : "System",
           resourceType: String(e.resource_type),
-          resourceId: Number(e.resource_id ?? 0),
+          resourceId: e.resource_id === null || e.resource_id === undefined ? null : Number(e.resource_id),
           summary: String(e.summary ?? ""),
           timestamp: e.created_at,
         }))
       : [];
 
-    const auditLogs = [...eventLogs, ...saleLogs, ...acquisitionLogs, ...userLogs]
-      .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
-      .slice(0, 100);
-
-    return withCors(request, Response.json({ success: true, auditLogs }, { status: 200 }), [
+    return withCors(
+      request,
+      Response.json({ success: true, auditLogs: eventLogs, page, limit: take, total }, { status: 200 }),
+      [
       "GET",
       "OPTIONS",
-    ]);
+      ]
+    );
   } catch (error) {
     return withCors(request, Response.json({ success: false, error: error.message }, { status: 500 }), [
       "GET",

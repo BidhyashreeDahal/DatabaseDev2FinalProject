@@ -18,6 +18,8 @@ type UserRow = {
 export default function UsersPage() {
   const router = useRouter();
   const [rows, setRows] = useState<UserRow[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -67,9 +69,44 @@ export default function UsersPage() {
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
+        <div className="flex items-center justify-between gap-3 text-sm text-slate-600">
+          <div>
+            Page <span className="font-semibold">{page}</span> of{" "}
+            <span className="font-semibold">{Math.max(1, Math.ceil(rows.length / limit) || 1)}</span> ·{" "}
+            <span className="font-semibold">{rows.length}</span> users
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={limit}
+              onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
+              className="input w-[92px] px-2 py-1 text-xs"
+            >
+              <option value={10}>10 / page</option>
+              <option value={20}>20 / page</option>
+              <option value={50}>50 / page</option>
+            </select>
+            <button
+              className="btn-secondary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              type="button"
+            >
+              Prev
+            </button>
+            <button
+              className="btn-primary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page >= Math.max(1, Math.ceil(rows.length / limit) || 1)}
+              onClick={() => setPage((p) => p + 1)}
+              type="button"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
         <div className="space-y-3 md:hidden">
           {!loading &&
-            rows.map((row) => (
+            rows.slice((page - 1) * limit, page * limit).map((row) => (
               <div key={row.userId} className="data-card p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="data-label">User</p>
@@ -118,7 +155,7 @@ export default function UsersPage() {
             ))}
         </div>
 
-        <div className="table-shell table-scroll hidden md:block">
+        <div className="table-shell hidden md:block">
           <table className="min-w-full text-sm">
             <thead>
               <tr>
@@ -141,7 +178,7 @@ export default function UsersPage() {
                   <td colSpan={7} className="px-4 py-8 text-center text-slate-500">No users found.</td>
                 </tr>
               ) : (
-                rows.map((row) => (
+                rows.slice((page - 1) * limit, page * limit).map((row) => (
                   <tr key={row.userId} className="border-t border-slate-100">
                     <td className="px-4 py-3">{row.userId}</td>
                     <td className="px-4 py-3">{row.firstName} {row.lastName}</td>

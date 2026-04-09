@@ -9,7 +9,7 @@ type AuditRow = {
   action: string;
   actor: string;
   resourceType: string;
-  resourceId: number;
+  resourceId?: number | null;
   summary: string;
   timestamp?: string | null;
 };
@@ -46,6 +46,11 @@ export default function AuditLogsPage() {
   return (
     <AppShell pageTitle="Audit Logs" pageDescription="Track critical system actions.">
       <div className="space-y-3 md:hidden">
+        {loading && <p className="px-1 py-2 text-sm text-slate-500">Loading audit logs...</p>}
+        {!loading && error && <p className="px-1 py-2 text-sm text-red-600">{error}</p>}
+        {!loading && !error && visibleRows.length === 0 && (
+          <p className="px-1 py-2 text-sm text-slate-500">No audit logs found.</p>
+        )}
         {!loading &&
           !error &&
           visibleRows.map((row) => (
@@ -63,7 +68,10 @@ export default function AuditLogsPage() {
                 </div>
                 <div>
                   <p className="data-label">Resource</p>
-                  <p className="data-value">{row.resourceType} #{row.resourceId}</p>
+                  <p className="data-value">
+                    {row.resourceType}
+                    {typeof row.resourceId === "number" ? ` #${row.resourceId}` : ""}
+                  </p>
                 </div>
               </div>
             </div>
@@ -110,7 +118,10 @@ export default function AuditLogsPage() {
                   <td className="px-4 py-3">{row.timestamp ? new Date(row.timestamp).toLocaleString() : "-"}</td>
                   <td className="px-4 py-3 font-medium">{row.action}</td>
                   <td className="px-4 py-3">{row.actor}</td>
-                  <td className="px-4 py-3">{row.resourceType} #{row.resourceId}</td>
+                  <td className="px-4 py-3">
+                    {row.resourceType}
+                    {typeof row.resourceId === "number" ? ` #${row.resourceId}` : ""}
+                  </td>
                   <td className="px-4 py-3">{row.summary}</td>
                 </tr>
               ))}

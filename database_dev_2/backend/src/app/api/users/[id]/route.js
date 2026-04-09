@@ -2,6 +2,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 function parseId(params) {
   const id = Number(params?.id);
@@ -164,6 +165,14 @@ export async function PATCH(request, { params }) {
       include: { role: true },
     });
 
+    await logAuditEvent(prisma, {
+      action: "UPDATE_USER",
+      resourceType: "user",
+      resourceId: user.user_id,
+      userId: Number(sessionUser.userId),
+      summary: `Updated user ${user.first_name} ${user.last_name} (${user.email})`,
+    });
+
     return withCors(
       request,
       Response.json(
@@ -225,9 +234,30 @@ export async function DELETE(request, { params }) {
       );
     }
 
+    const existing = await prisma.user.findUnique({
+      where: { user_id: userId },
+      select: { user_id: true, first_name: true, last_name: true, email: true },
+    });
+    if (!existing) {
+      return withCors(request, Response.json({ success: false, error: "User not found" }, { status: 404 }), [
+        "GET",
+        "PATCH",
+        "DELETE",
+        "OPTIONS",
+      ]);
+    }
+
     await prisma.user.update({
       where: { user_id: userId },
       data: { is_active: false },
+    });
+
+    await logAuditEvent(prisma, {
+      action: "DEACTIVATE_USER",
+      resourceType: "user",
+      resourceId: userId,
+      userId: Number(sessionUser.userId),
+      summary: `Deactivated user ${existing.first_name} ${existing.last_name} (${existing.email})`,
     });
 
     return withCors(

@@ -23,6 +23,8 @@ export default function AcquisitionsPage() {
   const { user } = useAuth();
   const [rows, setRows] = useState<AcquisitionRow[]>([]);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -49,7 +51,7 @@ export default function AcquisitionsPage() {
     };
   }, [search]);
 
-  const visibleRows = useMemo(() => rows.slice(0, 50), [rows]);
+  const visibleRows = useMemo(() => rows, [rows]);
 
   const role = String(user?.role || "").toLowerCase();
   const canCreate = canAccess(role, "CREATE_ACQUISITION");
@@ -105,7 +107,7 @@ export default function AcquisitionsPage() {
               </div>
             ))}
         </div>
-        <div className="table-shell table-scroll hidden md:block">
+        <div className="table-shell hidden md:block">
           <table className="min-w-full text-sm">
             <thead className="text-left text-slate-600">
               <tr>
@@ -141,7 +143,7 @@ export default function AcquisitionsPage() {
               )}
               {!loading &&
                 !error &&
-                visibleRows.map((row) => (
+                visibleRows.slice((page - 1) * limit, page * limit).map((row) => (
                   <tr key={row.acquisitionId} className="border-t border-slate-100">
                     <td className="px-4 py-3 font-mono text-xs text-slate-600">{row.acquisitionId}</td>
                     <td className="px-4 py-3">{row.itemTitle}</td>
@@ -153,6 +155,40 @@ export default function AcquisitionsPage() {
                 ))}
             </tbody>
           </table>
+        </div>
+        <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
+          <div>
+            Page <span className="font-semibold">{page}</span> of{" "}
+            <span className="font-semibold">{Math.max(1, Math.ceil(visibleRows.length / limit) || 1)}</span> ·{" "}
+            <span className="font-semibold">{visibleRows.length}</span> acquisitions
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={limit}
+              onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
+              className="input w-[92px] px-2 py-1 text-xs"
+            >
+              <option value={10}>10 / page</option>
+              <option value={20}>20 / page</option>
+              <option value={50}>50 / page</option>
+            </select>
+            <button
+              className="btn-secondary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              type="button"
+            >
+              Prev
+            </button>
+            <button
+              className="btn-primary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page >= Math.max(1, Math.ceil(visibleRows.length / limit) || 1)}
+              onClick={() => setPage((p) => p + 1)}
+              type="button"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </section>
     </AppShell>

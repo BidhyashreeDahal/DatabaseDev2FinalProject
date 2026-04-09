@@ -29,6 +29,8 @@ export default function CustomersPage() {
   const [rows, setRows] = useState<CustomerRow[]>([]);
   const [search, setSearch] = useState("");
   const [contact, setContact] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -104,7 +106,7 @@ export default function CustomersPage() {
           Signed in as <span className="font-semibold">{role || "unknown"}</span>. {canDelete ? "You can view, edit, and delete customers." : canUpdate ? "You can view and edit customers." : "You can only view customers."}
         </p>
 
-        <div className="table-shell table-scroll">
+        <div className="table-shell">
           <table className="min-w-full text-sm">
             <thead className="bg-stone-50 text-left text-slate-600">
               <tr>
@@ -142,7 +144,7 @@ export default function CustomersPage() {
               )}
               {!loading &&
                 !error &&
-                rows.map((row) => (
+                rows.slice((page - 1) * limit, page * limit).map((row) => (
                   <tr key={row.customerId} className="border-t border-slate-100 hover:bg-stone-50/70">
                     <td className="px-3 py-2 font-mono text-xs text-slate-600">{row.customerId}</td>
                     <td className="px-3 py-2">{row.firstName || row.name.split(" ").slice(0, -1).join(" ") || row.name}</td>
@@ -182,6 +184,40 @@ export default function CustomersPage() {
                 ))}
             </tbody>
           </table>
+        </div>
+        <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
+          <div>
+            Page <span className="font-semibold">{page}</span> of{" "}
+            <span className="font-semibold">{Math.max(1, Math.ceil(rows.length / limit) || 1)}</span> ·{" "}
+            <span className="font-semibold">{rows.length}</span> customers
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={limit}
+              onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
+              className="input w-[92px] px-2 py-1 text-xs"
+            >
+              <option value={10}>10 / page</option>
+              <option value={20}>20 / page</option>
+              <option value={50}>50 / page</option>
+            </select>
+            <button
+              className="btn-secondary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              type="button"
+            >
+              Prev
+            </button>
+            <button
+              className="btn-primary px-3 py-1 text-xs disabled:opacity-50"
+              disabled={page >= Math.max(1, Math.ceil(rows.length / limit) || 1)}
+              onClick={() => setPage((p) => p + 1)}
+              type="button"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </section>
     </AppShell>

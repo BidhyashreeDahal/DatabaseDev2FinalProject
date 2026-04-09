@@ -6,6 +6,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { canReadDealerContact, hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 function normalizeSourceType(input) {
   const raw = String(input || "").trim().toLowerCase();
@@ -147,6 +148,14 @@ export async function POST(request) {
       type,
       acquisitionCount: 0,
     };
+
+    await logAuditEvent(prisma, {
+      action: "CREATE_SOURCE",
+      resourceType: "source",
+      resourceId: created.source_id,
+      userId: Number(sessionUser.userId),
+      summary: `Created ${type.toLowerCase()} source "${created.name}"`,
+    });
 
     return withCors(
       request,

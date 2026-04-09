@@ -6,6 +6,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { canReadPricing, hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -166,6 +167,14 @@ export async function POST(request) {
       acquisitionCost: includePricing ? Number(created.item?.acquisition_cost ?? 0) : null,
       acquisitionDate: created.item?.acquisition_date || null,
     };
+
+    await logAuditEvent(prisma, {
+      action: "CREATE_ACQUISITION",
+      resourceType: "acquisition",
+      resourceId: created.acquisition_id,
+      userId: Number(sessionUser.userId),
+      summary: `Created acquisition for item #${created.item_id} from source #${created.source_id}`,
+    });
 
     return withCors(
       request,

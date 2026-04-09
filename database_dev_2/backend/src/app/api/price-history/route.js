@@ -2,6 +2,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function OPTIONS(req) {
   return preflight(req, ["GET", "POST", "OPTIONS"]);
@@ -28,43 +29,45 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim();
+    const pageParam = Number(searchParams.get("page")) || 1;
+    const limitParam = Math.min(Math.max(Number(searchParams.get("limit")) || 20, 1), 100);
+    const page = pageParam < 1 ? 1 : pageParam;
+    const take = limitParam;
+    const skip = (page - 1) * take;
 
-    const priceHistory = await prisma.price_history.findMany({
-      where: search
-        ? {
-            OR: [
-              { item: { title: { contains: search, mode: "insensitive" } } },
-            ],
-          }
-        : undefined,
-        include: {
-          item: {
-            select: { title: true },
-          },
-        },
-      orderBy: { item_id: "desc" },
-      take: 50,
-    });
+    const where = search
+      ? { OR: [{ item: { title: { contains: search, mode: "insensitive" } } }] }
+      : undefined;
+
+    const [total, priceHistory] = await Promise.all([
+      prisma.price_history.count({ where }),
+      prisma.price_history.findMany({
+        where,
+        include: { item: { select: { title: true } } },
+        orderBy: { price_history_id: "desc" },
+        skip,
+        take,
+      }),
+    ]);
 
     const formatted = priceHistory.map((ph) => ({
       priceHistoryId: ph.price_history_id,
+      itemId: ph.item_id,
       title: ph?.item?.title || "Unknown Item",
       marketValue: Number(ph.market_value),
-      recordedDate: ph.recorded_date.toLocaleDateString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "numeric",
-    }),
+      recordedDate: ph.recorded_date ? new Date(ph.recorded_date).toISOString() : null,
       source: ph.source,
     }));
 
-    console.log("Fetched price history data:", formatted);
-
-    return withCors(request, Response.json({ success: true, items: formatted }, { status: 200 }), [
+    return withCors(
+      request,
+      Response.json({ success: true, items: formatted, page, limit: take, total }, { status: 200 }),
+      [
       "GET",
       "POST",
       "OPTIONS",
-    ]);
+      ]
+    );
   } catch (error) {
     return withCors(
       request,
@@ -131,6 +134,14 @@ export async function POST(request) {
         recorded_date: recordedDate,
         source,
       },
+    });
+
+    await logAuditEvent(prisma, {
+      action: "CREATE_PRICE_HISTORY",
+      resourceType: "price_history",
+      resourceId: created.price_history_id,
+      userId: Number(sessionUser.userId),
+      summary: `Recorded market value ${Number(created.market_value)} for item #${created.item_id}`,
     });
 
     return withCors(

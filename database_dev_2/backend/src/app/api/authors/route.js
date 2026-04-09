@@ -5,6 +5,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 const prisma = createPrismaClient();
 
@@ -56,6 +57,14 @@ export async function POST(req) {
 
     const created = await prisma.author.create({
       data: { name: name.trim() },
+    });
+
+    await logAuditEvent(prisma, {
+      action: "CREATE_AUTHOR",
+      resourceType: "author",
+      resourceId: created.author_id,
+      userId: Number(sessionUser.userId),
+      summary: `Created author "${created.name}"`,
     });
 
     return withCors(req, NextResponse.json({

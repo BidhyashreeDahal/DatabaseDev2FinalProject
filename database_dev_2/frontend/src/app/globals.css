@@ -2,14 +2,57 @@
 
 html,
 body {
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-app), "Segoe UI", Arial, Helvetica, sans-serif;
+  font-feature-settings: "ss01" on, "cv01" on, "cv02" on;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background: radial-gradient(circle at top, #fbfaf5 0%, #f3efe3 46%, #efebde 100%);
   color: #132b25;
 }
 
 .brand-serif {
-  font-family: "Times New Roman", Georgia, serif;
-  letter-spacing: 0.015em;
+  font-family: inherit;
+  letter-spacing: 0;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.015em;
+  font-weight: 650;
+}
+
+.page-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  color: #173d35;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.page-title-accent {
+  display: inline-block;
+  height: 3px;
+  width: 76px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #b89245 0%, #d8bd77 55%, rgba(216, 189, 119, 0.25) 100%);
+}
+
+.hero-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.02;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.hero-subtitle {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
 .input {

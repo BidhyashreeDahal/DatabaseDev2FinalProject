@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { loginUser } from "@/services/authService";
 import { AUTH_COOKIE_NAME, signAuthToken } from "@/lib/auth";
 import { preflight, withCors } from "@/lib/cors";
+import { createPrismaClient } from "@/lib/prisma";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function OPTIONS(req) {
   return preflight(req, ["POST", "OPTIONS"]);
@@ -22,6 +24,7 @@ export async function POST(req) {
     }
 
     const user = await loginUser(email, password);
+    const prisma = createPrismaClient();
 
     const token = signAuthToken({
       userId: user.userId,
@@ -42,6 +45,14 @@ export async function POST(req) {
       sameSite: "none",
       path: "/",
       maxAge: 60 * 60 * 24,
+    });
+
+    await logAuditEvent(prisma, {
+      action: "LOGIN_SUCCESS",
+      resourceType: "auth",
+      resourceId: user.userId,
+      userId: user.userId,
+      summary: `User ${user.email} logged in`,
     });
 
     return withCors(req, response, ["POST", "OPTIONS"]);

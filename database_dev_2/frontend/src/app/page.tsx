@@ -416,6 +416,7 @@ export default function RootPage() {
           transform: translateY(0);
         }
 
+
         /* ══════════════════════════════════════════
            RESPONSIVE
         ══════════════════════════════════════════ */
@@ -521,7 +522,7 @@ export default function RootPage() {
               <Link href="/login" className="brr-enter-btn">
                 Enter Staff Portal
               </Link>
-            </div>
+      </div>
 
           </div>
         </div>

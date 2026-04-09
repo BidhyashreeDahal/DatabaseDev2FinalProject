@@ -2,6 +2,7 @@ import { createPrismaClient } from "@/lib/prisma";
 import { preflight, withCors } from "@/lib/cors";
 import { getSessionUser } from "@/lib/auth";
 import { canReadDealerContact, canReadPricing, hasPermission } from "@/lib/permissions";
+import { logAuditEvent } from "@/lib/audit";
 
 function parseId(params) {
   const id = Number(params?.id);
@@ -210,6 +211,14 @@ export async function PATCH(request, { params }) {
       type,
     };
 
+    await logAuditEvent(prisma, {
+      action: "UPDATE_SOURCE",
+      resourceType: "source",
+      resourceId: updated.source_id,
+      userId: Number(sessionUser.userId),
+      summary: `Updated source "${updated.name}"`,
+    });
+
     return withCors(
       request,
       Response.json({ success: true, source }, { status: 200 }),
@@ -253,11 +262,31 @@ export async function DELETE(request, { params }) {
       );
     }
 
+    const existing = await prisma.source.findUnique({
+      where: { source_id: sourceId },
+      select: { source_id: true, name: true },
+    });
+    if (!existing) {
+      return withCors(
+        request,
+        Response.json({ success: false, error: "Source not found" }, { status: 404 }),
+        ["GET", "PATCH", "DELETE", "OPTIONS"]
+      );
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.dealer.deleteMany({ where: { source_id: sourceId } });
       await tx.collector.deleteMany({ where: { source_id: sourceId } });
       await tx.estate.deleteMany({ where: { source_id: sourceId } });
       await tx.source.delete({ where: { source_id: sourceId } });
+    });
+
+    await logAuditEvent(prisma, {
+      action: "DELETE_SOURCE",
+      resourceType: "source",
+      resourceId: sourceId,
+      userId: Number(sessionUser.userId),
+      summary: `Deleted source "${existing.name}"`,
     });
 
     return withCors(
