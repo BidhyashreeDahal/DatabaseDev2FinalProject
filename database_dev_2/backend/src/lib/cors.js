@@ -10,12 +10,24 @@ function getAllowedOrigins() {
     .filter(Boolean);
 }
 
+function isOriginAllowed(origin, allowedOrigins) {
+  return allowedOrigins.some((allowed) => {
+    if (allowed === origin) return true;
+    // Wildcard subdomain support, e.g. https://*.vercel.app
+    if (allowed.includes("*.")) {
+      const normalized = allowed.replace("*.", "");
+      return origin.startsWith("https://") && origin.endsWith(normalized);
+    }
+    return false;
+  });
+}
+
 function resolveAllowedOrigin(request) {
   const origin = request.headers.get("origin");
   if (!origin) return null;
 
   const allowedOrigins = getAllowedOrigins();
-  return allowedOrigins.includes(origin) ? origin : null;
+  return isOriginAllowed(origin, allowedOrigins) ? origin : null;
 }
 
 function buildCorsHeaders(request, methods) {
