@@ -1,4 +1,8 @@
-const DEFAULT_ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost:3001"];
+const DEFAULT_ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://*.vercel.app",
+];
 
 function getAllowedOrigins() {
   const fromEnv = process.env.CORS_ALLOWED_ORIGINS;
@@ -11,12 +15,23 @@ function getAllowedOrigins() {
 }
 
 function isOriginAllowed(origin, allowedOrigins) {
+  let originUrl;
+  try {
+    originUrl = new URL(origin);
+  } catch {
+    return false;
+  }
+
   return allowedOrigins.some((allowed) => {
     if (allowed === origin) return true;
     // Wildcard subdomain support, e.g. https://*.vercel.app
-    if (allowed.includes("*.")) {
-      const normalized = allowed.replace("*.", "");
-      return origin.startsWith("https://") && origin.endsWith(normalized);
+    const wildcardMatch = allowed.match(/^(https?):\/\/\*\.(.+)$/);
+    if (wildcardMatch) {
+      const [, protocol, domain] = wildcardMatch;
+      return (
+        originUrl.protocol === `${protocol}:` &&
+        (originUrl.hostname === domain || originUrl.hostname.endsWith(`.${domain}`))
+      );
     }
     return false;
   });

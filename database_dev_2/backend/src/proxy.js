@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 
 const AUTH_COOKIE_NAME = "auth_token";
-const DEFAULT_ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost:3001"];
+const DEFAULT_ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://*.vercel.app",
+];
 const PUBLIC_API_PATHS = new Set(["/api/auth/login", "/api/auth/logout"]);
 
 function getAllowedOrigins() {
@@ -14,6 +18,28 @@ function getAllowedOrigins() {
     .filter(Boolean);
 }
 
+function isOriginAllowed(origin, allowedOrigins) {
+  let originUrl;
+  try {
+    originUrl = new URL(origin);
+  } catch {
+    return false;
+  }
+
+  return allowedOrigins.some((allowed) => {
+    if (allowed === origin) return true;
+    const wildcardMatch = allowed.match(/^(https?):\/\/\*\.(.+)$/);
+    if (wildcardMatch) {
+      const [, protocol, domain] = wildcardMatch;
+      return (
+        originUrl.protocol === `${protocol}:` &&
+        (originUrl.hostname === domain || originUrl.hostname.endsWith(`.${domain}`))
+      );
+    }
+    return false;
+  });
+}
+
 function applyCorsHeaders(request, response) {
   const origin = request.headers.get("origin");
   const allowedOrigins = getAllowedOrigins();
@@ -23,7 +49,7 @@ function applyCorsHeaders(request, response) {
   response.headers.set("Access-Control-Allow-Credentials", "true");
   response.headers.set("Vary", "Origin");
 
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && isOriginAllowed(origin, allowedOrigins)) {
     response.headers.set("Access-Control-Allow-Origin", origin);
   }
 
