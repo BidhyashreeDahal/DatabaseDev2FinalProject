@@ -4,6 +4,8 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { API_BASE_URL } from "@/api/api";
+import { useAuth } from "@/context/AuthContext";
+import { canUpdatePricing } from "@/lib/permissions";
 
 type PriceHistoryRow = {
   priceHistoryId: number;
@@ -21,6 +23,8 @@ type ItemOption = {
 
 export default function PriceHistoryPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const canAddHistory = canUpdatePricing(user?.role);
   const [rows, setRows] = useState<PriceHistoryRow[]>([]);
   const [items, setItems] = useState<ItemOption[]>([]);
   const [search, setSearch] = useState("");
@@ -78,6 +82,7 @@ export default function PriceHistoryPage() {
     let active = true;
 
     async function loadItems() {
+      if (!canAddHistory) return;
       try {
         const res = await fetch(`${API_BASE_URL}/api/items`, {
           credentials: "include",
@@ -103,7 +108,7 @@ export default function PriceHistoryPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [canAddHistory]);
 
   async function handleManualAdd(e: FormEvent) {
     e.preventDefault();
@@ -183,59 +188,60 @@ export default function PriceHistoryPage() {
     >
       <section className="space-y-4">
 
-        {/* Add Form */}
-        <form
-          onSubmit={handleManualAdd}
-          className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-5"
-        >
-          <select
-            value={itemId}
-            onChange={(e) => setItemId(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-            required
+        {canAddHistory && (
+          <form
+            onSubmit={handleManualAdd}
+            className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-5"
           >
-            <option value="">Select item</option>
-            {items.map((item) => (
-              <option key={item.itemId} value={item.itemId}>
-                #{item.itemId} - {item.title}
-              </option>
-            ))}
-          </select>
+            <select
+              value={itemId}
+              onChange={(e) => setItemId(e.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              required
+            >
+              <option value="">Select item</option>
+              {items.map((item) => (
+                <option key={item.itemId} value={item.itemId}>
+                  #{item.itemId} - {item.title}
+                </option>
+              ))}
+            </select>
 
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Market value"
-            value={marketValue}
-            onChange={(e) => setMarketValue(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-            required
-          />
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="Market value"
+              value={marketValue}
+              onChange={(e) => setMarketValue(e.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              required
+            />
 
-          <input
-            type="date"
-            value={recordedDate}
-            onChange={(e) => setRecordedDate(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-          />
+            <input
+              type="date"
+              value={recordedDate}
+              onChange={(e) => setRecordedDate(e.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
 
-          <input
-            placeholder="Source"
-            value={source}
-            onChange={(e) => setSource(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-            required
-          />
+            <input
+              placeholder="Source"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              required
+            />
 
-          <button
-            type="submit"
-            disabled={adding}
-            className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
-          >
-            {adding ? "Adding..." : "+ Add History"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={adding}
+              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+            >
+              {adding ? "Adding..." : "+ Add History"}
+            </button>
+          </form>
+        )}
 
         {/* Search */}
         <div className="rounded-lg border border-slate-200 bg-white p-3">
