@@ -1,39 +1,122 @@
 <p align="center">
-<<<<<<< HEAD
-  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="400" />
-=======
-  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="180" />
->>>>>>> 27bfa00 (Fix cross-origin auth cookies for Vercel frontend and Render backend)
+  <img src="./frontend/Logo.png" alt="Britannicus Reading Room logo" width="320" />
 </p>
 
 <h1 align="center">The Britannicus Reading Room</h1>
-<p align="center"><strong>Rare Books • Antique Maps • Fine Editions</strong></p>
-
-Database-driven inventory and sales management system for the Britannicus Reading Room case study.
-
-This monorepo contains:
-
-- `frontend` - Next.js App Router UI (staff portal)
-- `backend` - Next.js API + Prisma (PostgreSQL)
-
-Default local ports:
-
-- Frontend: `http://localhost:3000`
-- Backend API: `http://localhost:4000`
+<p align="center"><strong>Database-Driven Inventory and Sales Management System</strong></p>
+<p align="center">
+  Durham College - INFT 3201 (Database Development II) Team Capstone
+</p>
 
 ---
 
-## 1) Prerequisites
+## Overview
 
-- Node.js 20+ (recommended LTS)
+The Britannicus Reading Room is a full-stack web application built for a case study involving a rare-book and antique-map retailer.  
+The business needed a reliable way to manage:
+
+- Inventory across books, periodicals, and maps
+- Acquisitions from dealers, collectors, estates, and ad-hoc sellers
+- Customers, purchases, and sales history
+- Market pricing and price history
+- Role-based access to sensitive information (pricing, provenance, dealer contact details)
+
+This solution provides a staff-facing portal with secure authentication, database-backed workflows, and operational reporting support.
+
+---
+
+## Case Study Context
+
+Connor Whyte, owner of The Britannicus Reading Room, is shifting the business from general used paperbacks toward higher-value rare books and antique maps (including a newly expanded "Map Room").  
+As inventory value and supplier complexity increased, manual tracking became difficult.
+
+Our system was designed to solve that by centralizing data and making day-to-day operations faster, safer, and easier to manage.
+
+---
+
+## Team
+
+This was a 6-person team project.
+
+- Bidhyashree
+- Hayden
+- Marvin
+- Rachel
+- Simeon
+- Sreeraj
+
+### My Contribution (Bidhyashree)
+
+I contributed across both frontend and backend implementation:
+
+- Built and refined key frontend pages and flows in Next.js
+- Developed backend API routes and business logic
+- Integrated frontend with backend APIs
+- Helped implement authentication/authorization behavior and permission-aware UI flow
+- Contributed to end-to-end feature delivery for core modules
+
+---
+
+## Key Features
+
+- Secure sign-in and session management
+- Role-based access control for staff users
+- Inventory management for books, maps, and periodicals
+- Source and acquisition tracking (dealers, collectors, estates)
+- Customer and sales management
+- Price history tracking to support market monitoring
+- Audit-aware backend patterns for protected operations
+
+---
+
+## Tech Stack
+
+- Frontend: Next.js (App Router), React, Tailwind CSS
+- Backend: Next.js Route Handlers (API layer), Node.js
+- Database: PostgreSQL
+- ORM: Prisma
+- Auth: JWT + HTTP-only cookie session strategy
+
+---
+
+## System Architecture
+
+```text
+frontend (Next.js) -> backend API (Next.js route handlers) -> Prisma -> PostgreSQL
+```
+
+- `frontend` contains the staff portal UI.
+- `backend` contains API routes, service/repository logic, auth, permissions, and database access.
+
+---
+
+## Screenshots
+
+### Landing Page
+![Landing Page](./frontend/LandingPage.png)
+
+### Sign In Page
+![Sign In Page](./frontend/SignInPage.png)
+
+### Items Page
+![Items Page](./frontend/Items%20page.png)
+
+### Individual Item Page
+![Individual Item Page](./frontend/IndividualItemPage.png)
+
+---
+
+## Getting Started
+
+### 1) Prerequisites
+
+- Node.js 20+
 - npm 10+
-- PostgreSQL database (local or cloud)
+- PostgreSQL database
 
----
+### 2) Install Dependencies
 
-## 2) Install Dependencies
-
-From repo root (`database_dev_2`):
+From `database_dev_2/`:
 
 ```bash
 npm install
@@ -41,13 +124,9 @@ npm --prefix frontend install
 npm --prefix backend install
 ```
 
----
+### 3) Configure Environment Variables
 
-## 3) Environment Variables
-
-### Backend (`backend/.env`)
-
-Create `backend/.env` with:
+Create `backend/.env`:
 
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"
@@ -55,27 +134,15 @@ JWT_SECRET="replace-with-a-strong-secret"
 CORS_ALLOWED_ORIGINS="http://localhost:3000"
 ```
 
-Notes:
-
-- For multiple allowed origins, use comma-separated values.
-- Example:
-  `CORS_ALLOWED_ORIGINS="http://localhost:3000,https://your-frontend-domain.com"`
-
-### Frontend (`frontend/.env.local`)
-
-Create `frontend/.env.local` with:
+Create `frontend/.env.local`:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL="http://localhost:4000"
 ```
 
-For production, set this to your deployed backend URL.
+### 4) Initialize Database
 
----
-
-## 4) Database Setup (Prisma)
-
-From `backend`:
+From `backend/`:
 
 ```bash
 npm run prisma:generate
@@ -83,34 +150,23 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
-This creates schema and seed data (items, sources, acquisitions, sales, users, etc.) for demo.
+### 5) Run the App
 
----
-
-## 5) Run Locally
-
-From repo root:
+From `database_dev_2/`:
 
 ```bash
 npm run dev:backend
 npm run dev:frontend
 ```
 
-Or run individually:
-
-```bash
-# backend
-npm --prefix backend run dev
-
-# frontend
-npm --prefix frontend run dev
-```
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:4000`
 
 ---
 
-## 6) Build and Lint
+## Useful Scripts
 
-From repo root:
+From `database_dev_2/`:
 
 ```bash
 npm run build:backend
@@ -127,75 +183,25 @@ npm --prefix backend run verify:api-guards
 
 ---
 
-## 7) Deploy Guide (Quick)
-
-Deploy as two services:
-
-1. **Backend** (Next.js API)  
-2. **Frontend** (Next.js web app)
-
-### Backend environment (production)
-
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `CORS_ALLOWED_ORIGINS` (must include frontend production URL)
-- `NODE_ENV=production`
-
-### Frontend environment (production)
-
-- `NEXT_PUBLIC_API_BASE_URL` = deployed backend URL
-
-### Important auth/cookie note
-
-- Auth uses HTTP-only cookie (`auth_token`) with `SameSite=Lax`.
-- Cookie is `secure` when `NODE_ENV=production`, so deploy over HTTPS.
-
----
-
-## 8) Scripts Reference
-
-### Root (`database_dev_2/package.json`)
-
-- `npm run dev:frontend`
-- `npm run dev:backend`
-- `npm run build:frontend`
-- `npm run build:backend`
-- `npm run lint:frontend`
-- `npm run lint:backend`
-
-### Backend (`backend/package.json`)
-
-- `npm run dev`
-- `npm run build`
-- `npm run start`
-- `npm run prisma:generate`
-- `npm run prisma:migrate`
-- `npm run prisma:seed`
-- `npm run verify:api-guards`
-
-### Frontend (`frontend/package.json`)
-
-- `npm run dev`
-- `npm run build`
-- `npm run start`
-- `npm run lint`
-
----
-
-## 9) Tech Stack
-
-- Next.js (frontend + backend routes)
-- React
-- Prisma ORM
-- PostgreSQL
-- Tailwind CSS
-
----
-
-## 10) Project Structure
+## Project Structure
 
 ```text
 database_dev_2/
-  frontend/   # UI (App Router)
-  backend/    # API routes + Prisma
+  frontend/   # Next.js staff UI
+  backend/    # Next.js API + Prisma + PostgreSQL
 ```
+
+---
+
+## Deliverables Completed (Course Milestones)
+
+- Deliverable 1: Initial planning, mission statement, system boundary, project plan
+- Deliverable 2: Requirements, 3NF relational schema, ERD, UI drafts
+- Deliverable 3: Final proposal + business pitch presentation + prototype demo
+- Deliverable 4: Final technical presentation, database, and working application submission
+
+---
+
+## Resume-Friendly Project Summary
+
+Designed and built a full-stack database application for a rare-books and antique-maps retailer, implementing secure role-based operations for inventory, acquisitions, customers, sales, and pricing workflows using Next.js, Prisma, and PostgreSQL.
