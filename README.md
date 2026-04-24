@@ -308,6 +308,15 @@ This project was built by six students for *Database Development II*.
 | Sreeraj, Rechal, Bidhyashree, hayden| Customers, Sources  Acquisitions modules|
 | Marvin, Simeon, Bidhyashree  | Testing, deployment &amp; documentation |
 
+My Contribution (Bidhyashree)
+I contributed across both frontend and backend implementation:
+
+Built and refined key frontend pages and flows in Next.js
+Developed backend API routes and business logic
+Integrated frontend with backend APIs
+Helped implement authentication/authorization behavior and permission-aware UI flow
+Contributed to end-to-end feature delivery for core modules
+
 
 ## Acknowledgements
 
