@@ -95,16 +95,16 @@ frontend (Next.js) -> backend API (Next.js route handlers) -> Prisma -> PostgreS
 ## Screenshots
 
 ### Landing Page
-![Landing Page](./frontend/LandingPage.png)
+![Landing Page](./database_dev_2/frontend/LandingPage.png)
 
 ### Sign In Page
-![Sign In Page](./frontend/SignInPage.png)
+![Sign In Page](./database_dev_2/frontend/SignInPage.png)
 
 ### Items Page
-![Items Page](./frontend/Items%20page.png)
+![Items Page](./database_dev_2/frontend/Items%20page.png)
 
 ### Individual Item Page
-![Individual Item Page](./frontend/IndividualItemPage.png)
+![Individual Item Page](./database_dev_2/frontend/IndividualItemPage.png)
 
 ---
 
@@ -203,7 +203,5 @@ database_dev_2/
 - Deliverable 4: Final technical presentation, database, and working application submission
 
 ---
-
-## Resume-Friendly Project Summary
 
 Co-developed a full-stack database application for a rare-books and antique-maps retailer, implementing secure role-based workflows for inventory, acquisitions, customers, sales, and pricing using Next.js, Prisma, and PostgreSQL.
