@@ -302,16 +302,12 @@ This project was built by six students for *Database Development II*.
 
 | Member | Role / Primary Contribution |
 |--------|-----------------------------|
-| *Your name*       | *e.g. Team lead, backend API, authentication &amp; RBAC* |
-| *Member 2*        | *e.g. Database schema &amp; Prisma migrations*           |
-| *Member 3*        | *e.g. Frontend architecture &amp; UI components*         |
-| *Member 4*        | *e.g. Items &amp; Sales modules*                         |
-| *Member 5*        | *e.g. Customers, Sources &amp; Acquisitions modules*     |
-| *Member 6*        | *e.g. Testing, deployment &amp; documentation*           |
+| Bidhyashree Dahal       | Technical lead, backend API, authentication &amp; RBAC* |
+| Sreeraj & Rechal        |  Database schema &amp; Prisma migrations*           |
+| Bidhyashree & Hayden    | Frontend architecture &amp; UI components*         |
+| Sreeraj, Rechal, Bidhyashree, hayden| Customers, Sources  Acquisitions modules|
+| Marvin, Simeon, Bidhyashree  | Testing, deployment &amp; documentation |
 
-> Replace the names and GitHub handles above with your team members before publishing.
-
----
 
 ## Acknowledgements
 
